@@ -1,0 +1,24 @@
+import { Router, Request, Response } from 'express';
+import authRoutes from './authRoutes';
+import productRoutes from './productRoutes';
+import categoryRoutes from './categoryRoutes';
+import supplierRoutes from './supplierRoutes';
+
+const router = Router();
+
+router.get('/health', (req: Request, res: Response) => {
+  res.json({
+    success: true,
+    message: 'API is healthy! ✅',
+    timestamp: new Date().toISOString(),
+    uptime: process.uptime()
+  });
+});
+
+// Routes
+router.use('/auth', authRoutes);
+router.use('/products', productRoutes);
+router.use('/categories', categoryRoutes);
+router.use('/suppliers', supplierRoutes);
+
+export default router;
