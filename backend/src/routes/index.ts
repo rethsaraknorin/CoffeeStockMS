@@ -5,6 +5,8 @@ import categoryRoutes from './categoryRoutes';
 import supplierRoutes from './supplierRoutes';
 import stockRoutes from './stockRoutes';
 import reportRoutes from './reportRoutes';
+import exportRoutes from './exportRoutes';
+import notificationRoutes from './notificationRoutes';
 
 const router = Router();
 
@@ -17,12 +19,13 @@ router.get('/health', (req: Request, res: Response) => {
   });
 });
 
-// Routes
 router.use('/auth', authRoutes);
 router.use('/products', productRoutes);
 router.use('/categories', categoryRoutes);
 router.use('/suppliers', supplierRoutes);
 router.use('/stock', stockRoutes);
 router.use('/reports', reportRoutes);
+router.use('/export', exportRoutes);
+router.use('/notifications', notificationRoutes);
 
 export default router;
