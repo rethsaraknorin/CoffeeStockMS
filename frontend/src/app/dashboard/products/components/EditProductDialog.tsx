@@ -16,6 +16,13 @@ import {
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import api from '@/lib/api';
 import { toast } from 'sonner';
 
@@ -23,6 +30,7 @@ const productSchema = z.object({
   name: z.string().min(2, 'Name must be at least 2 characters'),
   sku: z.string().min(2, 'SKU must be at least 2 characters'),
   description: z.string().optional(),
+  supplierId: z.string().optional(),
   unitPrice: z.number().min(0, 'Price must be positive'),
   currentStock: z.number().min(0, 'Stock must be positive'),
   reorderLevel: z.number().min(0, 'Reorder level must be positive'),
@@ -36,6 +44,10 @@ interface Product {
   name: string;
   sku: string;
   description: string;
+  supplier?: {
+    id: string;
+    name: string;
+  };
   unitPrice: number;
   currentStock: number;
   reorderLevel: number;
@@ -56,18 +68,22 @@ export default function EditProductDialog({
   onSuccess,
 }: EditProductDialogProps) {
   const [loading, setLoading] = useState(false);
+  const [suppliers, setSuppliers] = useState<{ id: string; name: string }[]>([]);
 
   const {
     register,
     handleSubmit,
     formState: { errors },
     reset,
+    setValue,
+    watch,
   } = useForm<ProductForm>({
     resolver: zodResolver(productSchema),
     defaultValues: {
       name: product.name,
       sku: product.sku,
       description: product.description || '',
+      supplierId: product.supplier?.id,
       unitPrice: product.unitPrice,
       currentStock: product.currentStock,
       reorderLevel: product.reorderLevel,
@@ -80,6 +96,7 @@ export default function EditProductDialog({
       name: product.name,
       sku: product.sku,
       description: product.description || '',
+      supplierId: product.supplier?.id,
       unitPrice: product.unitPrice,
       currentStock: product.currentStock,
       reorderLevel: product.reorderLevel,
@@ -87,10 +104,27 @@ export default function EditProductDialog({
     });
   }, [product, reset]);
 
+  useEffect(() => {
+    if (!open) return;
+    const fetchSuppliers = async () => {
+      try {
+        const response = await api.get('/suppliers');
+        setSuppliers(response.data.data || []);
+      } catch (error: any) {
+        console.error('Fetch suppliers error:', error);
+        toast.error('Failed to load suppliers');
+      }
+    };
+    fetchSuppliers();
+  }, [open]);
+
   const onSubmit = async (data: ProductForm) => {
     setLoading(true);
     try {
-      await api.put(`/products/${product.id}`, data);
+      await api.put(`/products/${product.id}`, {
+        ...data,
+        supplierId: data.supplierId && data.supplierId !== 'none' ? data.supplierId : undefined,
+      });
       toast.success('Product updated successfully!');
       onOpenChange(false);
       onSuccess();
@@ -147,6 +181,26 @@ export default function EditProductDialog({
               {errors.unitPrice && (
                 <p className="text-sm text-destructive">{errors.unitPrice.message}</p>
               )}
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="supplierId">Supplier</Label>
+              <Select
+                onValueChange={(value) => setValue('supplierId', value === 'none' ? undefined : value)}
+                value={watch('supplierId')}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select supplier (optional)" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="none">No supplier</SelectItem>
+                  {suppliers.map((supplier) => (
+                    <SelectItem key={supplier.id} value={supplier.id}>
+                      {supplier.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
 
             <div className="space-y-2">

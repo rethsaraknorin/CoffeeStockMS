@@ -11,7 +11,7 @@ import {
   Settings,
   LogOut,
   Coffee,
-  Menu
+  X
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useAuthStore } from '@/store/authStore';
@@ -36,18 +36,29 @@ const navItems = [
   { icon: Settings, label: 'Settings', href: '/dashboard/settings' },
 ];
 
-export default function Sidebar() {
+interface SidebarProps {
+  mobileOpen: boolean;
+  onClose: () => void;
+}
+
+export default function Sidebar({ mobileOpen, onClose }: SidebarProps) {
   const pathname = usePathname();
   const router = useRouter();
   const { user, logout } = useAuthStore();
 
   const handleLogout = () => {
     logout();
+    onClose();
     router.push('/login');
   };
 
   return (
-    <div className="flex h-full w-64 flex-col border-r bg-card">
+    <div
+      className={cn(
+        'fixed inset-y-0 left-0 z-40 flex h-full w-64 flex-col border-r bg-card transition-transform duration-200 ease-out md:translate-x-0',
+        mobileOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'
+      )}
+    >
       {/* Logo Section */}
       <div className="flex h-16 items-center gap-2 border-b px-6">
         <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary">
@@ -57,6 +68,15 @@ export default function Sidebar() {
           <span className="text-sm font-semibold">Coffee Shop</span>
           <span className="text-xs text-muted-foreground">Stock Manager</span>
         </div>
+        <Button
+          variant="ghost"
+          size="icon"
+          className="ml-auto md:hidden"
+          onClick={onClose}
+          aria-label="Close sidebar"
+        >
+          <X className="h-5 w-5" />
+        </Button>
       </div>
 
       {/* User Profile */}
@@ -95,7 +115,7 @@ export default function Sidebar() {
           const isActive = pathname === item.href;
           
           return (
-            <Link key={item.href} href={item.href}>
+            <Link key={item.href} href={item.href} onClick={onClose}>
               <Button
                 variant={isActive ? 'secondary' : 'ghost'}
                 className={cn(

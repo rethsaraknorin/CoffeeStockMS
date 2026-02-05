@@ -11,6 +11,7 @@ import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { Shield, Key, AlertCircle } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import api from '@/lib/api';
 import { toast } from 'sonner';
 
 const passwordSchema = z.object({
@@ -39,12 +40,14 @@ export default function SecuritySettings() {
   const onSubmit = async (data: PasswordForm) => {
     setLoading(true);
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      await api.put('/auth/password', {
+        currentPassword: data.currentPassword,
+        newPassword: data.newPassword,
+      });
       toast.success('Password changed successfully!');
       reset();
-    } catch (error) {
-      toast.error('Failed to change password');
+    } catch (error: any) {
+      toast.error(error?.response?.data?.message || 'Failed to change password');
     } finally {
       setLoading(false);
     }

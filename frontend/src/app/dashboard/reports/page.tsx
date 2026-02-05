@@ -143,16 +143,16 @@ export default function ReportsPage() {
   if (!data) return null;
 
   return (
-    <div className="flex-1 space-y-4 p-8">
+    <div className="flex-1 space-y-4 p-4 sm:p-6 lg:p-8">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h2 className="text-3xl font-bold tracking-tight">Reports & Analytics</h2>
+          <h2 className="text-2xl sm:text-3xl font-bold tracking-tight">Reports & Analytics</h2>
           <p className="text-muted-foreground">
             Export reports and view inventory analytics
           </p>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 text-sm sm:text-base">
           <Calendar className="h-4 w-4 text-muted-foreground" />
           <span className="text-sm text-muted-foreground">
             {new Date().toLocaleDateString()}
@@ -161,7 +161,7 @@ export default function ReportsPage() {
       </div>
 
       {/* Summary Cards */}
-      <div className="grid gap-4 md:grid-cols-4">
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Total Products</CardTitle>
@@ -211,15 +211,15 @@ export default function ReportsPage() {
 
       {/* Tabs */}
       <Tabs defaultValue="analytics" className="space-y-4">
-        <TabsList>
-          <TabsTrigger value="analytics">Analytics</TabsTrigger>
-          <TabsTrigger value="export">Export Reports</TabsTrigger>
+        <TabsList className="grid w-full grid-cols-2 sm:inline-flex sm:w-auto">
+          <TabsTrigger value="analytics" className="text-xs sm:text-sm">Analytics</TabsTrigger>
+          <TabsTrigger value="export" className="text-xs sm:text-sm">Export Reports</TabsTrigger>
         </TabsList>
 
         {/* Analytics Tab */}
         <TabsContent value="analytics" className="space-y-4">
           {/* Charts */}
-          <div className="grid gap-4 md:grid-cols-2">
+          <div className="grid gap-4 lg:grid-cols-2">
             <InventoryValueChart products={data.topProductsByValue} />
             <StockMovementChart breakdown={data.movements.breakdown} />
           </div>
@@ -242,7 +242,7 @@ export default function ReportsPage() {
             </CardHeader>
             <CardContent className="space-y-4">
               {/* Full Inventory Report */}
-              <div className="flex items-center justify-between p-4 border rounded-lg">
+              <div className="flex flex-col gap-3 p-4 border rounded-lg sm:flex-row sm:items-center sm:justify-between">
                 <div>
                   <h4 className="font-medium">Full Inventory Report</h4>
                   <p className="text-sm text-muted-foreground">
@@ -252,6 +252,7 @@ export default function ReportsPage() {
                 <Button
                   onClick={() => handleExport('inventory-excel')}
                   disabled={exportLoading === 'inventory-excel'}
+                  className="w-full sm:w-auto"
                 >
                   {exportLoading === 'inventory-excel' ? (
                     'Exporting...'
@@ -265,7 +266,7 @@ export default function ReportsPage() {
               </div>
 
               {/* Low Stock Report */}
-              <div className="flex items-center justify-between p-4 border rounded-lg">
+              <div className="flex flex-col gap-3 p-4 border rounded-lg sm:flex-row sm:items-center sm:justify-between">
                 <div>
                   <h4 className="font-medium">Low Stock Alert Report</h4>
                   <p className="text-sm text-muted-foreground">
@@ -276,6 +277,7 @@ export default function ReportsPage() {
                   onClick={() => handleExport('low-stock-excel')}
                   disabled={exportLoading === 'low-stock-excel'}
                   variant="outline"
+                  className="w-full sm:w-auto"
                 >
                   {exportLoading === 'low-stock-excel' ? (
                     'Exporting...'
@@ -297,7 +299,7 @@ export default function ReportsPage() {
                   </p>
                 </div>
                 
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid gap-4 sm:grid-cols-2">
                   <div className="space-y-2">
                     <Label htmlFor="startDate">Start Date</Label>
                     <Input
@@ -349,7 +351,7 @@ export default function ReportsPage() {
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="flex items-center justify-between p-4 border rounded-lg">
+              <div className="flex flex-col gap-3 p-4 border rounded-lg sm:flex-row sm:items-center sm:justify-between">
                 <div>
                   <h4 className="font-medium">Inventory PDF Report</h4>
                   <p className="text-sm text-muted-foreground">
@@ -360,6 +362,7 @@ export default function ReportsPage() {
                   onClick={() => handleExport('inventory-pdf')}
                   disabled={exportLoading === 'inventory-pdf'}
                   variant="outline"
+                  className="w-full sm:w-auto"
                 >
                   {exportLoading === 'inventory-pdf' ? (
                     'Exporting...'

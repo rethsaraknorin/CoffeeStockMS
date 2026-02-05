@@ -94,12 +94,12 @@ export default function StockChart({ data }: StockChartProps) {
               <LineChart data={data} margin={{ top: 5, right: 10, left: -20, bottom: 5 }}>
                 <defs>
                   <linearGradient id="stockLineGradient" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="#3b82f6" stopOpacity={0.3} />
-                    <stop offset="100%" stopColor="#3b82f6" stopOpacity={0} />
+                    <stop offset="0%" stopColor="var(--chart-1)" stopOpacity={0.35} />
+                    <stop offset="100%" stopColor="var(--chart-1)" stopOpacity={0} />
                   </linearGradient>
                   <linearGradient id="reorderLineGradient" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="#f59e0b" stopOpacity={0.3} />
-                    <stop offset="100%" stopColor="#f59e0b" stopOpacity={0} />
+                    <stop offset="0%" stopColor="var(--chart-4)" stopOpacity={0.35} />
+                    <stop offset="100%" stopColor="var(--chart-4)" stopOpacity={0} />
                   </linearGradient>
                 </defs>
                 <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" opacity={0.5} />
@@ -123,7 +123,7 @@ export default function StockChart({ data }: StockChartProps) {
                     fontSize: '12px',
                     boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)'
                   }}
-                  cursor={{ stroke: '#3b82f6', strokeWidth: 2, strokeDasharray: '5 5' }}
+                  cursor={{ stroke: 'var(--chart-1)', strokeWidth: 2, strokeDasharray: '5 5' }}
                 />
                 <Legend 
                   wrapperStyle={{ fontSize: '12px', paddingTop: '10px' }}
@@ -132,21 +132,21 @@ export default function StockChart({ data }: StockChartProps) {
                 <Line 
                   type="monotone" 
                   dataKey="stock" 
-                  stroke="#3b82f6" 
+                  stroke="var(--chart-1)" 
                   strokeWidth={3} 
                   name="Current Stock"
-                  dot={{ fill: '#3b82f6', r: 5, strokeWidth: 2, stroke: '#fff' }}
-                  activeDot={{ r: 7, fill: '#1d4ed8', stroke: '#fff', strokeWidth: 2 }}
+                  dot={{ fill: 'var(--chart-1)', r: 5, strokeWidth: 2, stroke: '#fff' }}
+                  activeDot={{ r: 7, fill: 'var(--chart-1)', stroke: '#fff', strokeWidth: 2 }}
                   fill="url(#stockLineGradient)"
                 />
                 <Line 
                   type="monotone" 
                   dataKey="reorderLevel" 
-                  stroke="#f59e0b" 
+                  stroke="var(--chart-4)" 
                   strokeWidth={3} 
                   name="Reorder Level"
-                  dot={{ fill: '#f59e0b', r: 5, strokeWidth: 2, stroke: '#fff' }}
-                  activeDot={{ r: 7, fill: '#d97706', stroke: '#fff', strokeWidth: 2 }}
+                  dot={{ fill: 'var(--chart-4)', r: 5, strokeWidth: 2, stroke: '#fff' }}
+                  activeDot={{ r: 7, fill: 'var(--chart-4)', stroke: '#fff', strokeWidth: 2 }}
                   strokeDasharray="5 5"
                   fill="url(#reorderLineGradient)"
                 />

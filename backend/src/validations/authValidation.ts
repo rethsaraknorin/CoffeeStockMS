@@ -59,3 +59,68 @@ export const validateLogin = (
 
   next();
 };
+
+export const validateUpdateProfile = (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const { username, email } = req.body;
+
+  if (!username && !email) {
+    return res.status(400).json({
+      success: false,
+      message: 'Please provide username or email to update'
+    });
+  }
+
+  if (email) {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Please provide a valid email address'
+      });
+    }
+  }
+
+  if (username && username.length < 3) {
+    return res.status(400).json({
+      success: false,
+      message: 'Username must be at least 3 characters long'
+    });
+  }
+
+  next();
+};
+
+export const validateChangePassword = (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const { currentPassword, newPassword } = req.body;
+
+  if (!currentPassword || !newPassword) {
+    return res.status(400).json({
+      success: false,
+      message: 'Please provide current and new password'
+    });
+  }
+
+  if (newPassword.length < 6) {
+    return res.status(400).json({
+      success: false,
+      message: 'Password must be at least 6 characters long'
+    });
+  }
+
+  if (currentPassword === newPassword) {
+    return res.status(400).json({
+      success: false,
+      message: 'New password must be different from current password'
+    });
+  }
+
+  next();
+};

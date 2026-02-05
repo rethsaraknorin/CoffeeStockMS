@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -32,6 +32,7 @@ const productSchema = z.object({
   sku: z.string().min(2, 'SKU must be at least 2 characters'),
   description: z.string().optional(),
   categoryId: z.string().min(1, 'Category is required'),
+  supplierId: z.string().optional(),
   unitPrice: z.number().min(0, 'Price must be positive'),
   currentStock: z.number().min(0, 'Stock must be positive'),
   reorderLevel: z.number().min(0, 'Reorder level must be positive'),
@@ -41,6 +42,11 @@ const productSchema = z.object({
 type ProductForm = z.infer<typeof productSchema>;
 
 interface Category {
+  id: string;
+  name: string;
+}
+
+interface Supplier {
   id: string;
   name: string;
 }
@@ -153,6 +159,7 @@ export default function AddProductDialog({
   const [loading, setLoading] = useState(false);
   const [showAddCategory, setShowAddCategory] = useState(false);
   const [categories, setCategories] = useState(initialCategories);
+  const [suppliers, setSuppliers] = useState<Supplier[]>([]);
 
   const {
     register,
@@ -171,6 +178,21 @@ export default function AddProductDialog({
   });
 
   const selectedCategoryId = watch('categoryId');
+  const selectedSupplierId = watch('supplierId');
+
+  useEffect(() => {
+    if (!open) return;
+    const fetchSuppliers = async () => {
+      try {
+        const response = await api.get('/suppliers');
+        setSuppliers(response.data.data || []);
+      } catch (error: any) {
+        console.error('Fetch suppliers error:', error);
+        toast.error('Failed to load suppliers');
+      }
+    };
+    fetchSuppliers();
+  }, [open]);
 
   const handleCategoryAdded = (newCategory: Category) => {
     setCategories([...categories, newCategory]);
@@ -181,7 +203,10 @@ export default function AddProductDialog({
   const onSubmit = async (data: ProductForm) => {
     setLoading(true);
     try {
-      await api.post('/products', data);
+      await api.post('/products', {
+        ...data,
+        supplierId: data.supplierId && data.supplierId !== 'none' ? data.supplierId : undefined,
+      });
       toast.success('Product added successfully!');
       reset();
       onOpenChange(false);
@@ -277,6 +302,27 @@ export default function AddProductDialog({
                 {errors.categoryId && (
                   <p className="text-sm text-destructive">{errors.categoryId.message}</p>
                 )}
+              </div>
+
+              {/* Supplier */}
+              <div className="space-y-2">
+                <Label htmlFor="supplierId">Supplier</Label>
+                <Select
+                  onValueChange={(value) => setValue('supplierId', value === 'none' ? undefined : value)}
+                  value={selectedSupplierId}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select supplier (optional)" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="none">No supplier</SelectItem>
+                    {suppliers.map((supplier) => (
+                      <SelectItem key={supplier.id} value={supplier.id}>
+                        {supplier.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
 
               {/* Unit Price */}

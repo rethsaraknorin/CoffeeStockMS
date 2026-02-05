@@ -11,6 +11,7 @@ import { Label } from '@/components/ui/label';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { useAuthStore } from '@/store/authStore';
+import api from '@/lib/api';
 import { toast } from 'sonner';
 
 const profileSchema = z.object({
@@ -21,13 +22,14 @@ const profileSchema = z.object({
 type ProfileForm = z.infer<typeof profileSchema>;
 
 export default function ProfileSettings() {
-  const { user } = useAuthStore();
+  const { user, updateUser, setAuth, token } = useAuthStore();
   const [loading, setLoading] = useState(false);
 
   const {
     register,
     handleSubmit,
     formState: { errors },
+    reset,
   } = useForm<ProfileForm>({
     resolver: zodResolver(profileSchema),
     defaultValues: {
@@ -39,11 +41,26 @@ export default function ProfileSettings() {
   const onSubmit = async (data: ProfileForm) => {
     setLoading(true);
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      const response = await api.put('/auth/profile', data);
+      const updatedUser = response.data?.data?.user;
+      const newToken = response.data?.data?.token;
+
+      if (updatedUser) {
+        if (newToken) {
+          setAuth(updatedUser, newToken);
+        } else if (token) {
+          setAuth(updatedUser, token);
+        } else {
+          updateUser(updatedUser);
+        }
+        reset({
+          username: updatedUser.username,
+          email: updatedUser.email,
+        });
+      }
       toast.success('Profile updated successfully!');
-    } catch (error) {
-      toast.error('Failed to update profile');
+    } catch (error: any) {
+      toast.error(error?.response?.data?.message || 'Failed to update profile');
     } finally {
       setLoading(false);
     }

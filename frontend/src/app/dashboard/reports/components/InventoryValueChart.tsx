@@ -32,6 +32,12 @@ export default function InventoryValueChart({ products }: InventoryValueChartPro
       <CardContent>
         <ResponsiveContainer width="100%" height={350}>
           <BarChart data={chartData}>
+            <defs>
+              <linearGradient id="inventoryValueGradient" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stopColor="var(--chart-2)" stopOpacity={0.9} />
+                <stop offset="100%" stopColor="var(--chart-2)" stopOpacity={0.35} />
+              </linearGradient>
+            </defs>
             <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
             <XAxis 
               dataKey="name" 
@@ -53,7 +59,7 @@ export default function InventoryValueChart({ products }: InventoryValueChartPro
             />
             <Bar 
               dataKey="value" 
-              fill="hsl(var(--primary))" 
+              fill="url(#inventoryValueGradient)" 
               radius={[8, 8, 0, 0]}
             />
           </BarChart>

@@ -4,6 +4,7 @@ export interface User {
   email: string;
   role: 'ADMIN' | 'STAFF';
   createdAt: string;
+  updatedAt?: string;
 }
 
 export interface AuthResponse {

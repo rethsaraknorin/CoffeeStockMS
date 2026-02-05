@@ -79,9 +79,9 @@ export default function StockPage() {
 
   if (loading) {
     return (
-      <div className="flex-1 space-y-4 p-8">
+      <div className="flex-1 space-y-4 p-4 sm:p-6 lg:p-8">
         <Skeleton className="h-12 w-full" />
-        <div className="grid gap-4 md:grid-cols-3">
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {[1, 2, 3].map((i) => (
             <Skeleton key={i} className="h-32" />
           ))}
@@ -92,10 +92,10 @@ export default function StockPage() {
   }
 
   return (
-    <div className="flex-1 space-y-4 p-8">
+    <div className="flex-1 space-y-4 p-4 sm:p-6 lg:p-8">
       {/* Header */}
       <div>
-        <h2 className="text-3xl font-bold tracking-tight">Stock Management</h2>
+        <h2 className="text-2xl sm:text-3xl font-bold tracking-tight">Stock Management</h2>
         <p className="text-muted-foreground">
           Manage inventory movements and track stock levels
         </p>
@@ -103,7 +103,7 @@ export default function StockPage() {
 
       {/* Summary Cards */}
       {summary && (
-        <div className="grid gap-4 md:grid-cols-4">
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">Total Products</CardTitle>
@@ -160,9 +160,9 @@ export default function StockPage() {
 
       {/* Main Content */}
       <Tabs defaultValue="quick" className="space-y-4">
-        <TabsList>
-          <TabsTrigger value="quick">Quick Actions</TabsTrigger>
-          <TabsTrigger value="history">Stock History</TabsTrigger>
+        <TabsList className="grid w-full grid-cols-2 sm:inline-flex sm:w-auto">
+          <TabsTrigger value="quick" className="text-xs sm:text-sm">Quick Actions</TabsTrigger>
+          <TabsTrigger value="history" className="text-xs sm:text-sm">Stock History</TabsTrigger>
         </TabsList>
 
         {/* Quick Actions Tab */}
@@ -175,7 +175,7 @@ export default function StockPage() {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+              <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                 {products.map((product) => (
                   <QuickStockCard
                     key={product.id}

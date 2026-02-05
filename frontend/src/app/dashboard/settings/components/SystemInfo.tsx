@@ -43,7 +43,7 @@ export default function SystemInfo() {
       </Card>
 
       {/* Tech Stack */}
-      <Card>
+      {/* <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Code className="h-5 w-5" />
@@ -107,7 +107,7 @@ export default function SystemInfo() {
             </div>
           </div>
         </CardContent>
-      </Card>
+      </Card> */}
 
       {/* Resources */}
       <Card>
@@ -140,7 +140,7 @@ export default function SystemInfo() {
       {/* Footer */}
       <div className="text-center text-sm text-muted-foreground">
         <p>Built with ❤️ for coffee shop inventory management</p>
-        <p className="mt-1">© 2024 Coffee Shop Stock Manager. All rights reserved.</p>
+        <p className="mt-1">© 2026 Coffee Shop Stock Manager. All rights reserved.</p>
       </div>
     </div>
   );
