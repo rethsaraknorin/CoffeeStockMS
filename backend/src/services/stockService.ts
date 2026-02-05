@@ -239,7 +239,7 @@ export const stockService = {
     const lowStockProducts = await prisma.product.count({
       where: {
         currentStock: {
-          lte: prisma.product.fields.reorderLevel
+          lt: prisma.product.fields.reorderLevel
         }
       }
     });
@@ -282,5 +282,63 @@ export const stockService = {
       totalStockValue: totalStockValue.toFixed(2),
       recentMovementsCount
     };
+  },
+
+  // Reorder all low-stock products up to their reorder level
+  reorderAllLowStock: async (createdBy: string) => {
+    const lowStockProducts = await prisma.product.findMany({
+      where: {
+        currentStock: {
+          lt: prisma.product.fields.reorderLevel
+        }
+      },
+      select: {
+        id: true,
+        currentStock: true,
+        reorderLevel: true
+      }
+    });
+
+    if (lowStockProducts.length === 0) {
+      return { reorderedCount: 0, totalQuantity: 0 };
+    }
+
+    const result = await prisma.$transaction(async (tx) => {
+      let reorderedCount = 0;
+      let totalQuantity = 0;
+
+      await Promise.all(
+        lowStockProducts.map(async (product) => {
+          const quantity = product.reorderLevel - product.currentStock;
+          if (quantity <= 0) return;
+
+          reorderedCount += 1;
+          totalQuantity += quantity;
+
+          await tx.stockMovement.create({
+            data: {
+              productId: product.id,
+              type: 'IN',
+              quantity,
+              notes: 'Auto reorder to minimum level',
+              createdBy
+            }
+          });
+
+          await tx.product.update({
+            where: { id: product.id },
+            data: {
+              currentStock: {
+                increment: quantity
+              }
+            }
+          });
+        })
+      );
+
+      return { reorderedCount, totalQuantity };
+    });
+
+    return result;
   }
 };

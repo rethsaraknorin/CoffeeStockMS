@@ -141,5 +141,24 @@ export const stockController = {
         message: error.message || 'Failed to retrieve stock summary'
       });
     }
+  },
+
+  // Reorder all low-stock products
+  reorderAll: async (req: Request, res: Response) => {
+    try {
+      const createdBy = req.user?.username || 'Unknown';
+      const result = await stockService.reorderAllLowStock(createdBy);
+
+      res.status(200).json({
+        success: true,
+        message: 'Reorder processed successfully',
+        data: result
+      });
+    } catch (error: any) {
+      res.status(500).json({
+        success: false,
+        message: error.message || 'Failed to reorder stock'
+      });
+    }
   }
 };

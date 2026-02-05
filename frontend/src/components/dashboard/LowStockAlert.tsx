@@ -6,6 +6,8 @@ import { Button } from '@/components/ui/button';
 import { AlertTriangle, ArrowRight } from 'lucide-react';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Separator } from '@/components/ui/separator';
+import { toast } from 'sonner';
+import api from '@/lib/api';
 
 interface Product {
   id: string;
@@ -20,9 +22,27 @@ interface Product {
 
 interface LowStockAlertProps {
   products: Product[];
+  onReorder?: () => void;
 }
 
-export default function LowStockAlert({ products }: LowStockAlertProps) {
+export default function LowStockAlert({ products, onReorder }: LowStockAlertProps) {
+  const handleReorderAll = async () => {
+    const count = products.length;
+    if (count === 0) {
+      toast.info('No low-stock items to reorder');
+      return;
+    }
+    try {
+      const response = await api.post('/stock/reorder-all');
+      const reorderedCount = response.data?.data?.reorderedCount ?? count;
+      const totalQuantity = response.data?.data?.totalQuantity ?? 0;
+      toast.success(`Reordered ${reorderedCount} item${reorderedCount !== 1 ? 's' : ''} (${totalQuantity} units)`);
+      onReorder?.();
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || 'Failed to reorder stock');
+    }
+  };
+
   return (
     <Card>
       <CardHeader>
@@ -83,7 +103,7 @@ export default function LowStockAlert({ products }: LowStockAlertProps) {
           </ScrollArea>
         )}
         {products.length > 0 && (
-          <Button className="w-full mt-4" variant="outline">
+          <Button className="w-full mt-4" variant="outline" onClick={handleReorderAll}>
             Reorder All
             <ArrowRight className="ml-2 h-4 w-4" />
           </Button>

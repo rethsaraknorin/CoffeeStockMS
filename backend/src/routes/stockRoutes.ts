@@ -19,5 +19,6 @@ router.get('/movements/:productId', stockController.getProductStockHistory);
 
 // Stock summary/dashboard
 router.get('/summary', stockController.getStockSummary);
+router.post('/reorder-all', stockController.reorderAll);
 
 export default router;

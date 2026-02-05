@@ -88,91 +88,104 @@ export default function ProductsPage() {
 
   if (loading) {
     return (
-      <div className="flex-1 space-y-4 p-8">
-        <Skeleton className="h-12 w-full" />
-        <Skeleton className="h-96 w-full" />
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-slate-50 to-slate-100 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950 p-4 sm:p-6 lg:p-8">
+        <div className="max-w-7xl mx-auto space-y-6">
+          <Skeleton className="h-12 w-1/2" />
+          <Skeleton className="h-40 w-full" />
+          <Skeleton className="h-96 w-full" />
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="flex-1 space-y-4 p-8">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-3xl font-bold tracking-tight">Products</h2>
-          <p className="text-muted-foreground">
-            Manage your coffee shop inventory
-          </p>
-        </div>
-        <Button onClick={() => setIsAddDialogOpen(true)}>
-          <Plus className="mr-2 h-4 w-4" />
-          Add Product
-        </Button>
-      </div>
-
-      {/* Filters */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Search & Filter</CardTitle>
-          <CardDescription>
-            Find products quickly using search and filters
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="flex flex-col md:flex-row gap-4">
-            <div className="flex-1">
-              <div className="relative">
-                <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-                <Input
-                  placeholder="Search products by name or SKU..."
-                  className="pl-8"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                />
-              </div>
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-slate-50 to-slate-100 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950">
+      <div className="max-w-7xl mx-auto space-y-6 p-4 sm:p-6 lg:p-8">
+        {/* Header */}
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <div className="space-y-2">
+            <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-foreground">Products</h2>
+            <p className="text-sm sm:text-base text-muted-foreground">
+              Manage your coffee shop inventory
+            </p>
+            <div className="flex flex-wrap gap-2 text-xs">
+              <span className="rounded-full border border-border bg-background/70 px-3 py-1 text-muted-foreground">
+                Total: {products.length}
+              </span>
+              <span className="rounded-full border border-border bg-background/70 px-3 py-1 text-muted-foreground">
+                Showing: {filteredProducts.length}
+              </span>
             </div>
-            <Select value={selectedCategory} onValueChange={setSelectedCategory}>
-              <SelectTrigger className="w-full md:w-[200px]">
-                <Filter className="mr-2 h-4 w-4" />
-                <SelectValue placeholder="All Categories" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Categories</SelectItem>
-                {categories.map((category) => (
-                  <SelectItem key={category.id} value={category.id}>
-                    {category.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
           </div>
-        </CardContent>
-      </Card>
+          <Button onClick={() => setIsAddDialogOpen(true)} className="w-full sm:w-auto">
+            <Plus className="mr-2 h-4 w-4" />
+            Add Product
+          </Button>
+        </div>
 
-      {/* Products Table */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Products List</CardTitle>
-          <CardDescription>
-            {filteredProducts.length} product{filteredProducts.length !== 1 ? 's' : ''} found
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <ProductsTable 
-            products={filteredProducts} 
-            onRefresh={handleRefresh}
-          />
-        </CardContent>
-      </Card>
+        {/* Filters */}
+        <Card className="border-border/60 bg-background/70 backdrop-blur">
+          <CardHeader>
+            <CardTitle>Search & Filter</CardTitle>
+            <CardDescription>
+              Find products quickly using search and filters
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="flex flex-col gap-4 md:flex-row">
+              <div className="flex-1">
+                <div className="relative">
+                  <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+                  <Input
+                    placeholder="Search products by name or SKU..."
+                    className="pl-8 bg-background/60"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                  />
+                </div>
+              </div>
+              <Select value={selectedCategory} onValueChange={setSelectedCategory}>
+                <SelectTrigger className="w-full md:w-[220px] bg-background/60">
+                  <Filter className="mr-2 h-4 w-4" />
+                  <SelectValue placeholder="All Categories" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Categories</SelectItem>
+                  {categories.map((category) => (
+                    <SelectItem key={category.id} value={category.id}>
+                      {category.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </CardContent>
+        </Card>
 
-      {/* Add Product Dialog */}
-      <AddProductDialog
-        open={isAddDialogOpen}
-        onOpenChange={setIsAddDialogOpen}
-        categories={categories}
-        onSuccess={handleRefresh}
-      />
+        {/* Products Table */}
+        <Card className="border-border/60 bg-background/70 backdrop-blur">
+          <CardHeader>
+            <CardTitle>Products List</CardTitle>
+            <CardDescription>
+              {filteredProducts.length} product{filteredProducts.length !== 1 ? 's' : ''} found
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <ProductsTable 
+              products={filteredProducts} 
+              onRefresh={handleRefresh}
+            />
+          </CardContent>
+        </Card>
+
+        {/* Add Product Dialog */}
+        <AddProductDialog
+          open={isAddDialogOpen}
+          onOpenChange={setIsAddDialogOpen}
+          categories={categories}
+          onSuccess={handleRefresh}
+        />
+      </div>
     </div>
   );
 }

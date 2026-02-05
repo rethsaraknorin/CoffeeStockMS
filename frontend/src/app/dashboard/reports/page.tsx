@@ -128,14 +128,16 @@ export default function ReportsPage() {
 
   if (loading) {
     return (
-      <div className="flex-1 space-y-4 p-8">
-        <Skeleton className="h-12 w-full" />
-        <div className="grid gap-4 md:grid-cols-4">
-          {[1, 2, 3, 4].map((i) => (
-            <Skeleton key={i} className="h-32" />
-          ))}
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-slate-50 to-slate-100 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950 p-4 sm:p-6 lg:p-8">
+        <div className="max-w-7xl mx-auto space-y-6">
+          <Skeleton className="h-12 w-1/2" />
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            {[1, 2, 3, 4].map((i) => (
+              <Skeleton key={i} className="h-32" />
+            ))}
+          </div>
+          <Skeleton className="h-96 w-full" />
         </div>
-        <Skeleton className="h-96 w-full" />
       </div>
     );
   }
@@ -143,14 +145,26 @@ export default function ReportsPage() {
   if (!data) return null;
 
   return (
-    <div className="flex-1 space-y-4 p-4 sm:p-6 lg:p-8">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-slate-50 to-slate-100 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950">
+      <div className="max-w-7xl mx-auto space-y-6 p-4 sm:p-6 lg:p-8">
       {/* Header */}
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h2 className="text-2xl sm:text-3xl font-bold tracking-tight">Reports & Analytics</h2>
-          <p className="text-muted-foreground">
+          <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-foreground">Reports & Analytics</h2>
+          <p className="text-sm sm:text-base text-muted-foreground">
             Export reports and view inventory analytics
           </p>
+          <div className="mt-2 flex flex-wrap gap-2 text-xs">
+            <span className="rounded-full border border-border bg-background/70 px-3 py-1 text-muted-foreground">
+              Products: {data.overview.totalProducts}
+            </span>
+            <span className="rounded-full border border-border bg-background/70 px-3 py-1 text-muted-foreground">
+              Low Stock: {data.overview.lowStockCount}
+            </span>
+            <span className="rounded-full border border-border bg-background/70 px-3 py-1 text-muted-foreground">
+              Movements (Month): {data.movements.thisMonth}
+            </span>
+          </div>
         </div>
         <div className="flex items-center gap-2 text-sm sm:text-base">
           <Calendar className="h-4 w-4 text-muted-foreground" />
@@ -162,7 +176,7 @@ export default function ReportsPage() {
 
       {/* Summary Cards */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <Card>
+        <Card className="border-border/60 bg-background/70 backdrop-blur">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Total Products</CardTitle>
             <Package className="h-4 w-4 text-muted-foreground" />
@@ -173,7 +187,7 @@ export default function ReportsPage() {
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="border-border/60 bg-background/70 backdrop-blur">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Stock Value</CardTitle>
             <DollarSign className="h-4 w-4 text-muted-foreground" />
@@ -186,7 +200,7 @@ export default function ReportsPage() {
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="border-border/60 bg-background/70 backdrop-blur">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Low Stock</CardTitle>
             <AlertTriangle className="h-4 w-4 text-yellow-600" />
@@ -197,7 +211,7 @@ export default function ReportsPage() {
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="border-border/60 bg-background/70 backdrop-blur">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">This Month</CardTitle>
             <TrendingUp className="h-4 w-4 text-muted-foreground" />
@@ -211,7 +225,7 @@ export default function ReportsPage() {
 
       {/* Tabs */}
       <Tabs defaultValue="analytics" className="space-y-4">
-        <TabsList className="grid w-full grid-cols-2 sm:inline-flex sm:w-auto">
+        <TabsList className="grid w-full grid-cols-2 bg-slate-100/70 dark:bg-slate-900/50 sm:inline-flex sm:w-auto">
           <TabsTrigger value="analytics" className="text-xs sm:text-sm">Analytics</TabsTrigger>
           <TabsTrigger value="export" className="text-xs sm:text-sm">Export Reports</TabsTrigger>
         </TabsList>
@@ -230,7 +244,7 @@ export default function ReportsPage() {
         {/* Export Tab */}
         <TabsContent value="export" className="space-y-4">
           {/* Excel Exports */}
-          <Card>
+          <Card className="border-border/60 bg-background/70 backdrop-blur">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <FileText className="h-5 w-5" />
@@ -242,7 +256,7 @@ export default function ReportsPage() {
             </CardHeader>
             <CardContent className="space-y-4">
               {/* Full Inventory Report */}
-              <div className="flex flex-col gap-3 p-4 border rounded-lg sm:flex-row sm:items-center sm:justify-between">
+              <div className="flex flex-col gap-3 p-4 border rounded-lg sm:flex-row sm:items-center sm:justify-between bg-background/60">
                 <div>
                   <h4 className="font-medium">Full Inventory Report</h4>
                   <p className="text-sm text-muted-foreground">
@@ -266,7 +280,7 @@ export default function ReportsPage() {
               </div>
 
               {/* Low Stock Report */}
-              <div className="flex flex-col gap-3 p-4 border rounded-lg sm:flex-row sm:items-center sm:justify-between">
+              <div className="flex flex-col gap-3 p-4 border rounded-lg sm:flex-row sm:items-center sm:justify-between bg-background/60">
                 <div>
                   <h4 className="font-medium">Low Stock Alert Report</h4>
                   <p className="text-sm text-muted-foreground">
@@ -291,7 +305,7 @@ export default function ReportsPage() {
               </div>
 
               {/* Stock Movements Report */}
-              <div className="space-y-4 p-4 border rounded-lg">
+              <div className="space-y-4 p-4 border rounded-lg bg-background/60">
                 <div>
                   <h4 className="font-medium">Stock Movements Report</h4>
                   <p className="text-sm text-muted-foreground">
@@ -340,7 +354,7 @@ export default function ReportsPage() {
           </Card>
 
           {/* PDF Exports */}
-          <Card>
+          <Card className="border-border/60 bg-background/70 backdrop-blur">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <FileDown className="h-5 w-5" />
@@ -351,7 +365,7 @@ export default function ReportsPage() {
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="flex flex-col gap-3 p-4 border rounded-lg sm:flex-row sm:items-center sm:justify-between">
+              <div className="flex flex-col gap-3 p-4 border rounded-lg sm:flex-row sm:items-center sm:justify-between bg-background/60">
                 <div>
                   <h4 className="font-medium">Inventory PDF Report</h4>
                   <p className="text-sm text-muted-foreground">
@@ -378,6 +392,7 @@ export default function ReportsPage() {
           </Card>
         </TabsContent>
       </Tabs>
+      </div>
     </div>
   );
 }

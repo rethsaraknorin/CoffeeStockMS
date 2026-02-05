@@ -42,73 +42,6 @@ export default function SystemInfo() {
         </CardContent>
       </Card>
 
-      {/* Tech Stack */}
-      {/* <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Code className="h-5 w-5" />
-            Technology Stack
-          </CardTitle>
-          <CardDescription>
-            Technologies powering this application
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-4">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <Server className="h-4 w-4 text-muted-foreground" />
-                <span className="font-medium">Frontend</span>
-              </div>
-              <div className="flex gap-2">
-                <Badge variant="outline">Next.js 14</Badge>
-                <Badge variant="outline">React 18</Badge>
-                <Badge variant="outline">TypeScript</Badge>
-              </div>
-            </div>
-
-            <Separator />
-
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <Database className="h-4 w-4 text-muted-foreground" />
-                <span className="font-medium">Backend</span>
-              </div>
-              <div className="flex gap-2">
-                <Badge variant="outline">Express.js</Badge>
-                <Badge variant="outline">Node.js</Badge>
-              </div>
-            </div>
-
-            <Separator />
-
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <Database className="h-4 w-4 text-muted-foreground" />
-                <span className="font-medium">Database</span>
-              </div>
-              <div className="flex gap-2">
-                <Badge variant="outline">PostgreSQL</Badge>
-                <Badge variant="outline">Prisma ORM</Badge>
-              </div>
-            </div>
-
-            <Separator />
-
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <Code className="h-4 w-4 text-muted-foreground" />
-                <span className="font-medium">UI Framework</span>
-              </div>
-              <div className="flex gap-2">
-                <Badge variant="outline">Shadcn/ui</Badge>
-                <Badge variant="outline">Tailwind CSS</Badge>
-              </div>
-            </div>
-          </div>
-        </CardContent>
-      </Card> */}
-
       {/* Resources */}
       <Card>
         <CardHeader>
@@ -140,7 +73,7 @@ export default function SystemInfo() {
       {/* Footer */}
       <div className="text-center text-sm text-muted-foreground">
         <p>Built with ❤️ for coffee shop inventory management</p>
-        <p className="mt-1">© 2026 Coffee Shop Stock Manager. All rights reserved.</p>
+        <p className="mt-1">© 2026 Reth Saraknorin. All rights reserved.</p>
       </div>
     </div>
   );

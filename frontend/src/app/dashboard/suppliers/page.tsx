@@ -54,37 +54,48 @@ export default function SuppliersPage() {
 
   if (loading) {
     return (
-      <div className="flex-1 space-y-4 p-8">
-        <Skeleton className="h-12 w-full" />
-        <div className="grid gap-4 md:grid-cols-3">
-          {[1, 2, 3].map((i) => (
-            <Skeleton key={i} className="h-32" />
-          ))}
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-slate-50 to-slate-100 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950 p-4 sm:p-6 lg:p-8">
+        <div className="max-w-7xl mx-auto space-y-6">
+          <Skeleton className="h-12 w-1/2" />
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {[1, 2, 3].map((i) => (
+              <Skeleton key={i} className="h-32" />
+            ))}
+          </div>
+          <Skeleton className="h-96 w-full" />
         </div>
-        <Skeleton className="h-96 w-full" />
       </div>
     );
   }
 
   return (
-    <div className="flex-1 space-y-4 p-8">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-3xl font-bold tracking-tight">Suppliers</h2>
-          <p className="text-muted-foreground">
-            Manage your product suppliers and vendors
-          </p>
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-slate-50 to-slate-100 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950">
+      <div className="max-w-7xl mx-auto space-y-6 p-4 sm:p-6 lg:p-8">
+        {/* Header */}
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <div className="space-y-2">
+            <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-foreground">Suppliers</h2>
+            <p className="text-sm sm:text-base text-muted-foreground">
+              Manage your product suppliers and vendors
+            </p>
+            <div className="flex flex-wrap gap-2 text-xs">
+              <span className="rounded-full border border-border bg-background/70 px-3 py-1 text-muted-foreground">
+                Total Suppliers: {suppliers.length}
+              </span>
+              <span className="rounded-full border border-border bg-background/70 px-3 py-1 text-muted-foreground">
+                Products Supplied: {totalProducts}
+              </span>
+            </div>
+          </div>
+          <Button onClick={() => setIsAddDialogOpen(true)} className="w-full sm:w-auto">
+            <Plus className="mr-2 h-4 w-4" />
+            Add Supplier
+          </Button>
         </div>
-        <Button onClick={() => setIsAddDialogOpen(true)}>
-          <Plus className="mr-2 h-4 w-4" />
-          Add Supplier
-        </Button>
-      </div>
 
-      {/* Stats */}
-      <div className="grid gap-4 md:grid-cols-3">
-        <Card>
+        {/* Stats */}
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          <Card className="border-border/60 bg-background/70 backdrop-blur">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Total Suppliers</CardTitle>
             <Building2 className="h-4 w-4 text-muted-foreground" />
@@ -95,7 +106,7 @@ export default function SuppliersPage() {
           </CardContent>
         </Card>
 
-        <Card>
+          <Card className="border-border/60 bg-background/70 backdrop-blur">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Products Supplied</CardTitle>
             <Package className="h-4 w-4 text-muted-foreground" />
@@ -106,7 +117,7 @@ export default function SuppliersPage() {
           </CardContent>
         </Card>
 
-        <Card>
+          <Card className="border-border/60 bg-background/70 backdrop-blur">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Average</CardTitle>
             <Building2 className="h-4 w-4 text-muted-foreground" />
@@ -121,7 +132,7 @@ export default function SuppliersPage() {
       </div>
 
       {/* Suppliers Table */}
-      <Card>
+        <Card className="border-border/60 bg-background/70 backdrop-blur">
         <CardHeader>
           <CardTitle>All Suppliers</CardTitle>
           <CardDescription>
@@ -134,11 +145,12 @@ export default function SuppliersPage() {
       </Card>
 
       {/* Add Dialog */}
-      <AddSupplierDialog
-        open={isAddDialogOpen}
-        onOpenChange={setIsAddDialogOpen}
-        onSuccess={handleRefresh}
-      />
+        <AddSupplierDialog
+          open={isAddDialogOpen}
+          onOpenChange={setIsAddDialogOpen}
+          onSuccess={handleRefresh}
+        />
+      </div>
     </div>
   );
 }

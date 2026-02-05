@@ -21,7 +21,7 @@ export const reportService = {
     const lowStockProducts = await prisma.product.findMany({
       where: {
         currentStock: {
-          lte: prisma.product.fields.reorderLevel
+          lt: prisma.product.fields.reorderLevel
         }
       },
       include: {
@@ -226,7 +226,7 @@ export const reportService = {
         unitPrice: Number(product.unitPrice),
         stockValue: stockValue,
         reorderLevel: product.reorderLevel,
-        needsReorder: product.currentStock <= product.reorderLevel
+        needsReorder: product.currentStock < product.reorderLevel
       };
     });
 
@@ -268,7 +268,7 @@ export const reportService = {
     const lowStockProducts = await prisma.product.findMany({
       where: {
         currentStock: {
-          lte: prisma.product.fields.reorderLevel
+          lt: prisma.product.fields.reorderLevel
         }
       },
       include: {

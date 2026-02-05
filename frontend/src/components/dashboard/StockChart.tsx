@@ -1,5 +1,6 @@
 'use client';
 
+import { useEffect, useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend, LineChart, Line } from 'recharts';
@@ -13,9 +14,26 @@ interface StockChartProps {
 }
 
 export default function StockChart({ data }: StockChartProps) {
+  const [isDark, setIsDark] = useState(false);
+
+  useEffect(() => {
+    const update = () => {
+      if (typeof document === 'undefined') return;
+      setIsDark(document.documentElement.classList.contains('dark'));
+    };
+    update();
+
+    const observer = new MutationObserver(update);
+    observer.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
+    return () => observer.disconnect();
+  }, []);
+
+  const axisTickColor = isDark ? '#ffffff' : '#0f172a';
+
   return (
-    <Card className="shadow-sm hover:shadow-md transition-shadow border-l-4 border-l-blue-500">
-      <CardHeader className="pb-3">
+    <Card className="relative overflow-hidden shadow-sm hover:shadow-md transition-shadow border-l-4 border-l-blue-500 bg-gradient-to-br from-card via-card to-slate-50/40 dark:to-slate-950/30">
+      <div className="pointer-events-none absolute inset-x-0 top-0 h-24 bg-gradient-to-b from-blue-500/10 to-transparent dark:from-blue-400/10" />
+      <CardHeader className="relative pb-3">
         <CardTitle className="text-lg sm:text-xl flex items-center gap-2">
           <div className="h-2 w-2 rounded-full bg-blue-500 animate-pulse" />
           Stock Overview
@@ -24,9 +42,9 @@ export default function StockChart({ data }: StockChartProps) {
           Current stock levels vs reorder points
         </CardDescription>
       </CardHeader>
-      <CardContent className="px-2 sm:px-6">
+      <CardContent className="relative px-2 sm:px-6">
         <Tabs defaultValue="bar" className="space-y-4">
-          <TabsList className="grid w-full grid-cols-2">
+          <TabsList className="grid w-full grid-cols-2 bg-slate-100/70 dark:bg-slate-900/50">
             <TabsTrigger value="bar" className="text-xs sm:text-sm">📊 Bar Chart</TabsTrigger>
             <TabsTrigger value="line" className="text-xs sm:text-sm">📈 Line Chart</TabsTrigger>
           </TabsList>
@@ -36,36 +54,36 @@ export default function StockChart({ data }: StockChartProps) {
               <BarChart data={data} margin={{ top: 5, right: 10, left: -20, bottom: 5 }}>
                 <defs>
                   <linearGradient id="stockGradient" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="#3b82f6" stopOpacity={0.8} />
-                    <stop offset="100%" stopColor="#1d4ed8" stopOpacity={0.9} />
+                    <stop offset="0%" stopColor="var(--chart-1)" stopOpacity={0.85} />
+                    <stop offset="100%" stopColor="var(--chart-1)" stopOpacity={0.45} />
                   </linearGradient>
                   <linearGradient id="reorderGradient" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="#f59e0b" stopOpacity={0.8} />
-                    <stop offset="100%" stopColor="#d97706" stopOpacity={0.9} />
+                    <stop offset="0%" stopColor="var(--chart-4)" stopOpacity={0.85} />
+                    <stop offset="100%" stopColor="var(--chart-4)" stopOpacity={0.45} />
                   </linearGradient>
                 </defs>
-                <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" opacity={0.5} />
+                <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" opacity={0.35} />
                 <XAxis 
                   dataKey="name" 
-                  tick={{ fill: '#64748b', fontSize: 11 }}
+                  tick={{ fill: axisTickColor, fontSize: 11 }}
                   angle={-45}
                   textAnchor="end"
                   height={80}
-                  stroke="#cbd5e1"
+                  stroke="hsl(var(--border))"
                 />
                 <YAxis 
-                  tick={{ fill: '#64748b', fontSize: 11 }}
-                  stroke="#cbd5e1"
+                  tick={{ fill: axisTickColor, fontSize: 11 }}
+                  stroke="hsl(var(--border))"
                 />
                 <Tooltip 
                   contentStyle={{ 
-                    backgroundColor: '#ffffff',
-                    border: '1px solid #e2e8f0',
+                    backgroundColor: 'hsl(var(--card))',
+                    border: '1px solid hsl(var(--border))',
                     borderRadius: '8px',
                     fontSize: '12px',
                     boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)'
                   }}
-                  cursor={{ fill: 'rgba(59, 130, 246, 0.1)' }}
+                  cursor={{ fill: 'color-mix(in oklab, var(--chart-1) 12%, transparent)' }}
                 />
                 <Legend 
                   wrapperStyle={{ fontSize: '12px', paddingTop: '10px' }}
@@ -102,23 +120,23 @@ export default function StockChart({ data }: StockChartProps) {
                     <stop offset="100%" stopColor="var(--chart-4)" stopOpacity={0} />
                   </linearGradient>
                 </defs>
-                <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" opacity={0.5} />
+                <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" opacity={0.35} />
                 <XAxis 
                   dataKey="name"
-                  tick={{ fill: '#64748b', fontSize: 11 }}
+                  tick={{ fill: axisTickColor, fontSize: 11 }}
                   angle={-45}
                   textAnchor="end"
                   height={80}
-                  stroke="#cbd5e1"
+                  stroke="hsl(var(--border))"
                 />
                 <YAxis 
-                  tick={{ fill: '#64748b', fontSize: 11 }}
-                  stroke="#cbd5e1"
+                  tick={{ fill: axisTickColor, fontSize: 11 }}
+                  stroke="hsl(var(--border))"
                 />
                 <Tooltip 
                   contentStyle={{ 
-                    backgroundColor: '#ffffff',
-                    border: '1px solid #e2e8f0',
+                    backgroundColor: 'hsl(var(--card))',
+                    border: '1px solid hsl(var(--border))',
                     borderRadius: '8px',
                     fontSize: '12px',
                     boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)'

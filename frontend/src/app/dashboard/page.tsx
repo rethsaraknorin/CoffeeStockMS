@@ -143,6 +143,17 @@ export default function DashboardPage() {
             <p className="text-sm sm:text-base text-muted-foreground">
               Monitor your inventory and stock movements in real-time
             </p>
+            <div className="flex flex-wrap gap-2 text-xs pt-2">
+              <span className="rounded-full border border-border bg-background/70 px-3 py-1 text-muted-foreground">
+                Products: {dashboardData.overview.totalProducts}
+              </span>
+              <span className="rounded-full border border-border bg-background/70 px-3 py-1 text-muted-foreground">
+                Low Stock: {dashboardData.overview.lowStockCount}
+              </span>
+              <span className="rounded-full border border-border bg-background/70 px-3 py-1 text-muted-foreground">
+                Out of Stock: {dashboardData.overview.outOfStockCount}
+              </span>
+            </div>
           </div>
           <Button 
             onClick={handleRefresh} 
@@ -198,7 +209,10 @@ export default function DashboardPage() {
           </div>
           
           <div className="order-1 xl:order-2">
-            <LowStockAlert products={dashboardData.lowStockProducts.slice(0, 5)} />
+            <LowStockAlert
+              products={dashboardData.lowStockProducts.slice(0, 5)}
+              onReorder={fetchDashboardData}
+            />
           </div>
         </div>
 
