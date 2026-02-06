@@ -86,10 +86,18 @@ export const stockController = {
   // Get product stock history
   getProductStockHistory: async (req: Request, res: Response) => {
     try {
-      const { productId } = req.params;
+      const productIdParam = Array.isArray(req.params.productId)
+        ? req.params.productId[0]
+        : req.params.productId;
+      if (!productIdParam) {
+        return res.status(400).json({
+          success: false,
+          message: 'Missing productId'
+        });
+      }
       const limit = parseInt(req.query.limit as string) || 50;
 
-      const movements = await stockService.getProductStockHistory(productId, limit);
+      const movements = await stockService.getProductStockHistory(productIdParam, limit);
 
       res.status(200).json({
         success: true,

@@ -21,8 +21,14 @@ export const supplierController = {
 
   getSupplierById: async (req: Request, res: Response) => {
     try {
-      const { id } = req.params;
-      const supplier = await supplierService.getSupplierById(id);
+      const idParam = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
+      if (!idParam) {
+        return res.status(400).json({
+          success: false,
+          message: 'Missing id'
+        });
+      }
+      const supplier = await supplierService.getSupplierById(idParam);
 
       res.status(200).json({
         success: true,
@@ -57,9 +63,15 @@ export const supplierController = {
 
   updateSupplier: async (req: Request, res: Response) => {
     try {
-      const { id } = req.params;
+      const idParam = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
+      if (!idParam) {
+        return res.status(400).json({
+          success: false,
+          message: 'Missing id'
+        });
+      }
       const supplierData = req.body;
-      const supplier = await supplierService.updateSupplier(id, supplierData);
+      const supplier = await supplierService.updateSupplier(idParam, supplierData);
 
       res.status(200).json({
         success: true,
@@ -76,8 +88,14 @@ export const supplierController = {
 
   deleteSupplier: async (req: Request, res: Response) => {
     try {
-      const { id } = req.params;
-      const result = await supplierService.deleteSupplier(id);
+      const idParam = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
+      if (!idParam) {
+        return res.status(400).json({
+          success: false,
+          message: 'Missing id'
+        });
+      }
+      const result = await supplierService.deleteSupplier(idParam);
 
       res.status(200).json({
         success: true,

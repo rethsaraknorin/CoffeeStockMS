@@ -21,8 +21,14 @@ export const categoryController = {
 
   getCategoryById: async (req: Request, res: Response) => {
     try {
-      const { id } = req.params;
-      const category = await categoryService.getCategoryById(id);
+      const idParam = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
+      if (!idParam) {
+        return res.status(400).json({
+          success: false,
+          message: 'Missing id'
+        });
+      }
+      const category = await categoryService.getCategoryById(idParam);
 
       res.status(200).json({
         success: true,
@@ -57,9 +63,15 @@ export const categoryController = {
 
   updateCategory: async (req: Request, res: Response) => {
     try {
-      const { id } = req.params;
+      const idParam = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
+      if (!idParam) {
+        return res.status(400).json({
+          success: false,
+          message: 'Missing id'
+        });
+      }
       const { name, description } = req.body;
-      const category = await categoryService.updateCategory(id, name, description);
+      const category = await categoryService.updateCategory(idParam, name, description);
 
       res.status(200).json({
         success: true,
@@ -76,8 +88,14 @@ export const categoryController = {
 
   deleteCategory: async (req: Request, res: Response) => {
     try {
-      const { id } = req.params;
-      const result = await categoryService.deleteCategory(id);
+      const idParam = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
+      if (!idParam) {
+        return res.status(400).json({
+          success: false,
+          message: 'Missing id'
+        });
+      }
+      const result = await categoryService.deleteCategory(idParam);
 
       res.status(200).json({
         success: true,

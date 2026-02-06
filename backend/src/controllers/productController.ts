@@ -28,8 +28,14 @@ export const productController = {
   // Get single product
   getProductById: async (req: Request, res: Response) => {
     try {
-      const { id } = req.params;
-      const product = await productService.getProductById(id);
+      const idParam = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
+      if (!idParam) {
+        return res.status(400).json({
+          success: false,
+          message: 'Missing id'
+        });
+      }
+      const product = await productService.getProductById(idParam);
 
       res.status(200).json({
         success: true,
@@ -66,10 +72,16 @@ export const productController = {
   // Update product
   updateProduct: async (req: Request, res: Response) => {
     try {
-      const { id } = req.params;
+      const idParam = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
+      if (!idParam) {
+        return res.status(400).json({
+          success: false,
+          message: 'Missing id'
+        });
+      }
       const productData = req.body;
 
-      const product = await productService.updateProduct(id, productData);
+      const product = await productService.updateProduct(idParam, productData);
 
       res.status(200).json({
         success: true,
@@ -87,8 +99,14 @@ export const productController = {
   // Delete product
   deleteProduct: async (req: Request, res: Response) => {
     try {
-      const { id } = req.params;
-      const result = await productService.deleteProduct(id);
+      const idParam = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
+      if (!idParam) {
+        return res.status(400).json({
+          success: false,
+          message: 'Missing id'
+        });
+      }
+      const result = await productService.deleteProduct(idParam);
 
       res.status(200).json({
         success: true,

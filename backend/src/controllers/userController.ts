@@ -32,7 +32,13 @@ export const userController = {
 
   updateRole: async (req: Request, res: Response) => {
     try {
-      const { id } = req.params;
+      const idParam = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
+      if (!idParam) {
+        return res.status(400).json({
+          success: false,
+          message: 'Missing id'
+        });
+      }
       const { role } = req.body as { role?: string };
 
       if (!isValidRole(role)) {
@@ -42,7 +48,7 @@ export const userController = {
         });
       }
 
-      if (req.user?.id === id) {
+      if (req.user?.id === idParam) {
         return res.status(400).json({
           success: false,
           message: 'You cannot change your own role'
@@ -59,7 +65,7 @@ export const userController = {
         }
       }
 
-      const updated = await userService.updateUserRole(id, role as Role);
+      const updated = await userService.updateUserRole(idParam, role as Role);
 
       res.status(200).json({
         success: true,
@@ -76,9 +82,15 @@ export const userController = {
 
   deleteUser: async (req: Request, res: Response) => {
     try {
-      const { id } = req.params;
+      const idParam = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
+      if (!idParam) {
+        return res.status(400).json({
+          success: false,
+          message: 'Missing id'
+        });
+      }
 
-      if (req.user?.id === id) {
+      if (req.user?.id === idParam) {
         return res.status(400).json({
           success: false,
           message: 'You cannot delete your own account'
@@ -87,7 +99,7 @@ export const userController = {
 
       const adminCount = await userService.countAdmins();
       const users = await userService.listUsers('ADMIN');
-      const isAdminTarget = users.some((u) => u.id === id);
+      const isAdminTarget = users.some((u) => u.id === idParam);
       if (isAdminTarget && adminCount <= 1) {
         return res.status(400).json({
           success: false,
@@ -95,7 +107,7 @@ export const userController = {
         });
       }
 
-      await userService.deleteUser(id);
+      await userService.deleteUser(idParam);
 
       res.status(200).json({
         success: true,
