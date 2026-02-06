@@ -7,6 +7,8 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -31,10 +33,24 @@ interface StaffUser {
   createdAt: string;
 }
 
+interface StaffActivity {
+  id: string;
+  type: 'IN' | 'OUT' | 'ADJUSTMENT';
+  product: string;
+  sku: string;
+  quantity: number;
+  notes?: string;
+  createdBy: string;
+  createdAt: string;
+  action: string;
+}
+
 export default function StaffPage() {
   const { user } = useAuthStore();
   const [users, setUsers] = useState<StaffUser[]>([]);
   const [loading, setLoading] = useState(true);
+  const [activity, setActivity] = useState<StaffActivity[]>([]);
+  const [activityLoading, setActivityLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [roleFilter, setRoleFilter] = useState<'ALL' | 'ADMIN' | 'STAFF'>('ALL');
   const [sortKey, setSortKey] = useState<'username' | 'role' | 'createdAt'>('createdAt');
@@ -54,8 +70,21 @@ export default function StaffPage() {
     }
   };
 
+  const fetchActivity = async () => {
+    try {
+      setActivityLoading(true);
+      const response = await api.get('/reports/activity-log?days=14');
+      setActivity(response.data.data.activities || []);
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || 'Failed to load activity history');
+    } finally {
+      setActivityLoading(false);
+    }
+  };
+
   useEffect(() => {
     fetchUsers();
+    fetchActivity();
   }, []);
 
   const stats = useMemo(() => {
@@ -264,185 +293,242 @@ export default function StaffPage() {
           </Card>
         </div>
 
-        <Card className="border-border/60 bg-background/70 backdrop-blur">
-          <CardHeader>
-            <CardTitle>All Users</CardTitle>
-            <CardDescription>Manage roles and access</CardDescription>
-          </CardHeader>
-          <CardContent>
-            {users.length === 0 ? (
-              <div className="flex flex-col items-center justify-center gap-3 rounded-md border border-dashed px-6 py-12 text-center">
-                <div className="text-base font-medium">No users found</div>
-                <div className="text-sm text-muted-foreground">
-                  Once staff are added, they will show up here for role management.
-                </div>
-                <Button onClick={fetchUsers} variant="outline">
-                  Refresh
-                </Button>
-              </div>
-            ) : (
-              <div className="rounded-md border">
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>
-                        <button
-                          type="button"
-                          onClick={() => toggleSort('username')}
-                          className="inline-flex items-center gap-2 text-left font-medium text-foreground/80 hover:text-foreground"
-                        >
-                          User
-                          <span className="text-xs text-muted-foreground">
-                            {sortKey === 'username' ? (sortDir === 'asc' ? '▲' : '▼') : ''}
-                          </span>
-                        </button>
-                      </TableHead>
-                      <TableHead>
-                        <button
-                          type="button"
-                          onClick={() => toggleSort('role')}
-                          className="inline-flex items-center gap-2 text-left font-medium text-foreground/80 hover:text-foreground"
-                        >
-                          Role
-                          <span className="text-xs text-muted-foreground">
-                            {sortKey === 'role' ? (sortDir === 'asc' ? '▲' : '▼') : ''}
-                          </span>
-                        </button>
-                      </TableHead>
-                      <TableHead>
-                        <button
-                          type="button"
-                          onClick={() => toggleSort('createdAt')}
-                          className="inline-flex items-center gap-2 text-left font-medium text-foreground/80 hover:text-foreground"
-                        >
-                          Created
-                          <span className="text-xs text-muted-foreground">
-                            {sortKey === 'createdAt' ? (sortDir === 'asc' ? '▲' : '▼') : ''}
-                          </span>
-                        </button>
-                      </TableHead>
-                      <TableHead className="text-right">Actions</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {pagedUsers.map((u) => (
-                      <TableRow key={u.id}>
-                        <TableCell>
-                          <div>
-                            <div className="font-medium">{u.username}</div>
-                            <div className="text-sm text-muted-foreground">{u.email}</div>
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          <Select
-                            value={u.role}
-                            onValueChange={(value) => handleRoleChange(u.id, value as 'ADMIN' | 'STAFF')}
-                            disabled={u.id === user?.id}
-                          >
-                            <SelectTrigger className="w-[140px]">
-                              <SelectValue />
-                            </SelectTrigger>
-                            <SelectContent>
-                              <SelectItem value="ADMIN">ADMIN</SelectItem>
-                              <SelectItem value="STAFF">STAFF</SelectItem>
-                            </SelectContent>
-                          </Select>
-                        </TableCell>
-                        <TableCell>
-                          <Badge variant="outline">
-                            {new Date(u.createdAt).toLocaleDateString()}
-                          </Badge>
-                        </TableCell>
-                        <TableCell className="text-right">
-                          <AlertDialog>
-                            <AlertDialogTrigger asChild>
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                className="text-red-600"
+        <Tabs defaultValue="users" className="space-y-4">
+          <TabsList className="grid w-full grid-cols-2 bg-slate-100/70 dark:bg-slate-900/50 sm:inline-flex sm:w-auto">
+            <TabsTrigger value="users" className="text-xs sm:text-sm">All Users</TabsTrigger>
+            <TabsTrigger value="activity" className="text-xs sm:text-sm">Staff Activity</TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="users" className="space-y-4">
+            <Card className="border-border/60 bg-background/70 backdrop-blur">
+              <CardHeader>
+                <CardTitle>All Users</CardTitle>
+                <CardDescription>Manage roles and access</CardDescription>
+              </CardHeader>
+              <CardContent>
+                {users.length === 0 ? (
+                  <div className="flex flex-col items-center justify-center gap-3 rounded-md border border-dashed px-6 py-12 text-center">
+                    <div className="text-base font-medium">No users found</div>
+                    <div className="text-sm text-muted-foreground">
+                      Once staff are added, they will show up here for role management.
+                    </div>
+                    <Button onClick={fetchUsers} variant="outline">
+                      Refresh
+                    </Button>
+                  </div>
+                ) : (
+                  <div className="rounded-md border">
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead>
+                            <button
+                              type="button"
+                              onClick={() => toggleSort('username')}
+                              className="inline-flex items-center gap-2 text-left font-medium text-foreground/80 hover:text-foreground"
+                            >
+                              User
+                              <span className="text-xs text-muted-foreground">
+                                {sortKey === 'username' ? (sortDir === 'asc' ? '^' : 'v') : ''}
+                              </span>
+                            </button>
+                          </TableHead>
+                          <TableHead>
+                            <button
+                              type="button"
+                              onClick={() => toggleSort('role')}
+                              className="inline-flex items-center gap-2 text-left font-medium text-foreground/80 hover:text-foreground"
+                            >
+                              Role
+                              <span className="text-xs text-muted-foreground">
+                                {sortKey === 'role' ? (sortDir === 'asc' ? '^' : 'v') : ''}
+                              </span>
+                            </button>
+                          </TableHead>
+                          <TableHead>
+                            <button
+                              type="button"
+                              onClick={() => toggleSort('createdAt')}
+                              className="inline-flex items-center gap-2 text-left font-medium text-foreground/80 hover:text-foreground"
+                            >
+                              Created
+                              <span className="text-xs text-muted-foreground">
+                                {sortKey === 'createdAt' ? (sortDir === 'asc' ? '^' : 'v') : ''}
+                              </span>
+                            </button>
+                          </TableHead>
+                          <TableHead className="text-right">Actions</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {pagedUsers.map((u) => (
+                          <TableRow key={u.id}>
+                            <TableCell>
+                              <div>
+                                <div className="font-medium">{u.username}</div>
+                                <div className="text-sm text-muted-foreground">{u.email}</div>
+                              </div>
+                            </TableCell>
+                            <TableCell>
+                              <Select
+                                value={u.role}
+                                onValueChange={(value) => handleRoleChange(u.id, value as 'ADMIN' | 'STAFF')}
                                 disabled={u.id === user?.id}
                               >
-                                <Trash2 className="mr-2 h-4 w-4" />
-                                Delete
-                              </Button>
-                            </AlertDialogTrigger>
-                            <AlertDialogContent>
-                              <AlertDialogHeader>
-                                <AlertDialogTitle>Delete user?</AlertDialogTitle>
-                                <AlertDialogDescription>
-                                  This action cannot be undone. The user will lose access immediately.
-                                </AlertDialogDescription>
-                              </AlertDialogHeader>
-                              <AlertDialogFooter>
-                                <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                <AlertDialogAction onClick={() => handleDelete(u)}>
-                                  Delete
-                                </AlertDialogAction>
-                              </AlertDialogFooter>
-                            </AlertDialogContent>
-                          </AlertDialog>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                    {filteredUsers.length === 0 && (
-                      <TableRow>
-                        <TableCell colSpan={4} className="py-8 text-center text-sm text-muted-foreground">
-                          <div className="space-y-2">
-                            <div>No users match your search.</div>
-                            <Button size="sm" variant="outline" onClick={resetFilters}>
-                              Clear search & filters
-                            </Button>
-                          </div>
-                        </TableCell>
-                      </TableRow>
+                                <SelectTrigger className="w-[140px]">
+                                  <SelectValue />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  <SelectItem value="ADMIN">ADMIN</SelectItem>
+                                  <SelectItem value="STAFF">STAFF</SelectItem>
+                                </SelectContent>
+                              </Select>
+                            </TableCell>
+                            <TableCell>
+                              <Badge variant="outline">
+                                {new Date(u.createdAt).toLocaleDateString()}
+                              </Badge>
+                            </TableCell>
+                            <TableCell className="text-right">
+                              <AlertDialog>
+                                <AlertDialogTrigger asChild>
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    className="text-red-600"
+                                    disabled={u.id === user?.id}
+                                  >
+                                    <Trash2 className="mr-2 h-4 w-4" />
+                                    Delete
+                                  </Button>
+                                </AlertDialogTrigger>
+                                <AlertDialogContent>
+                                  <AlertDialogHeader>
+                                    <AlertDialogTitle>Delete user?</AlertDialogTitle>
+                                    <AlertDialogDescription>
+                                      This action cannot be undone. The user will lose access immediately.
+                                    </AlertDialogDescription>
+                                  </AlertDialogHeader>
+                                  <AlertDialogFooter>
+                                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                    <AlertDialogAction onClick={() => handleDelete(u)}>
+                                      Delete
+                                    </AlertDialogAction>
+                                  </AlertDialogFooter>
+                                </AlertDialogContent>
+                              </AlertDialog>
+                            </TableCell>
+                          </TableRow>
+                        ))}
+                        {filteredUsers.length === 0 && (
+                          <TableRow>
+                            <TableCell colSpan={4} className="py-8 text-center text-sm text-muted-foreground">
+                              <div className="space-y-2">
+                                <div>No users match your search.</div>
+                                <Button size="sm" variant="outline" onClick={resetFilters}>
+                                  Clear search and filters
+                                </Button>
+                              </div>
+                            </TableCell>
+                          </TableRow>
+                        )}
+                      </TableBody>
+                    </Table>
+                    {filteredUsers.length > 0 && (
+                      <div className="flex flex-col items-center justify-between gap-3 border-t px-4 py-3 text-sm text-muted-foreground sm:flex-row">
+                        <div>
+                          Showing{' '}
+                          <span className="font-medium text-foreground">
+                            {(currentPage - 1) * pageSize + 1}
+                          </span>{' '}
+                          to{' '}
+                          <span className="font-medium text-foreground">
+                            {Math.min(currentPage * pageSize, filteredUsers.length)}
+                          </span>{' '}
+                          of{' '}
+                          <span className="font-medium text-foreground">{filteredUsers.length}</span> users
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                            disabled={currentPage === 1}
+                          >
+                            Prev
+                          </Button>
+                          <span className="min-w-[90px] text-center">
+                            Page{' '}
+                            <span className="font-medium text-foreground">{currentPage}</span> of{' '}
+                            <span className="font-medium text-foreground">{totalPages}</span>
+                          </span>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+                            disabled={currentPage === totalPages}
+                          >
+                            Next
+                          </Button>
+                        </div>
+                      </div>
                     )}
-                  </TableBody>
-                </Table>
-                {filteredUsers.length > 0 && (
-                  <div className="flex flex-col items-center justify-between gap-3 border-t px-4 py-3 text-sm text-muted-foreground sm:flex-row">
-                    <div>
-                      Showing{' '}
-                      <span className="font-medium text-foreground">
-                        {(currentPage - 1) * pageSize + 1}
-                      </span>{' '}
-                      to{' '}
-                      <span className="font-medium text-foreground">
-                        {Math.min(currentPage * pageSize, filteredUsers.length)}
-                      </span>{' '}
-                      of{' '}
-                      <span className="font-medium text-foreground">{filteredUsers.length}</span> users
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
-                        disabled={currentPage === 1}
-                      >
-                        Prev
-                      </Button>
-                      <span className="min-w-[90px] text-center">
-                        Page{' '}
-                        <span className="font-medium text-foreground">{currentPage}</span> of{' '}
-                        <span className="font-medium text-foreground">{totalPages}</span>
-                      </span>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
-                        disabled={currentPage === totalPages}
-                      >
-                        Next
-                      </Button>
-                    </div>
                   </div>
                 )}
-              </div>
-            )}
-          </CardContent>
-        </Card>
-      </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
 
+          <TabsContent value="activity" className="space-y-4">
+            <Card className="border-border/60 bg-background/70 backdrop-blur">
+              <CardHeader className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                <div>
+                  <CardTitle>Staff Activity History</CardTitle>
+                  <CardDescription>Latest stock actions from your team</CardDescription>
+                </div>
+                <Button onClick={fetchActivity} variant="outline" size="sm">
+                  Refresh
+                </Button>
+              </CardHeader>
+              <CardContent>
+                {activityLoading ? (
+                  <Skeleton className="h-40 w-full" />
+                ) : activity.length === 0 ? (
+                  <div className="flex flex-col items-center justify-center py-10 text-center">
+                    <p className="text-sm text-muted-foreground">No recent staff activity</p>
+                  </div>
+                ) : (
+                  <ScrollArea className="h-[360px] pr-2">
+                    <div className="space-y-3">
+                      {activity.map((item) => (
+                        <div key={item.id} className="rounded-md border border-border/60 bg-background/70 p-3">
+                          <div className="flex items-center justify-between gap-2">
+                            <div className="font-medium">{item.product}</div>
+                            <Badge variant="outline" className="text-xs">
+                              {item.action}
+                            </Badge>
+                          </div>
+                          <div className="mt-1 text-xs text-muted-foreground">
+                            SKU: {item.sku} - Qty: {item.quantity}
+                          </div>
+                          {item.notes && (
+                            <div className="mt-1 text-xs text-muted-foreground">
+                              Notes: {item.notes}
+                            </div>
+                          )}
+                          <div className="mt-2 text-xs text-muted-foreground">
+                            by {item.createdBy} - {new Date(item.createdAt).toLocaleString()}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </ScrollArea>
+                )}
+              </CardContent>
+            </Card>
+          </TabsContent>
+        </Tabs>
+      </div>
     </div>
   );
 }
