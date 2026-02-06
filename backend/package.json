@@ -18,6 +18,9 @@
     "node": "20.x",
     "npm": "10.x"
   },
+  "overrides": {
+    "confbox": "0.2.2"
+  },
   "type": "commonjs",
   "dependencies": {
     "@prisma/adapter-pg": "^6.18.0",
