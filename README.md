@@ -1,227 +1,101 @@
 # Coffee Stock Management System
 
-A full-stack stock management system built for managing coffee inventory, products, suppliers, and stock movements with real-time reporting and notifications.
+Inventory management for coffee shops with product, supplier, stock, and reporting workflows in one place.
 
-## 🚀 Tech Stack
-
-### Backend
-- **Runtime**: Node.js with Express.js
-- **Language**: TypeScript
-- **Database**: PostgreSQL
-- **ORM**: Prisma
-- **Authentication**: JWT (JSON Web Tokens)
-- **Password Hashing**: bcryptjs
-- **Export**: ExcelJS, PDFKit
-- **Email**: Nodemailer
-
-### Frontend
-- **Framework**: Next.js 16 (App Router)
-- **Language**: TypeScript
-- **UI Library**: React 19
-- **Styling**: Tailwind CSS 4
-- **UI Components**: Radix UI
-- **State Management**: Zustand
-- **Forms**: React Hook Form + Zod
-- **Charts**: Recharts
-- **HTTP Client**: Axios
-- **Notifications**: Sonner
-
-## 📁 Project Structure
+## Project Structure
 
 ```
 StockMS/
-├── backend/                 # Express.js API server
+├── backend/
 │   ├── src/
-│   │   ├── controllers/    # Request handlers
-│   │   ├── services/       # Business logic
-│   │   ├── routes/         # API routes
-│   │   ├── middleware/     # Auth & error handling
-│   │   ├── validations/    # Request validation
-│   │   ├── utils/          # Utilities (JWT, bcrypt)
-│   │   └── types/          # TypeScript types
+│   │   ├── controllers/   # Request handlers
+│   │   ├── services/      # Business logic
+│   │   ├── routes/        # API routes
+│   │   ├── middleware/    # Auth and error handling
+│   │   ├── validations/   # Request validation
+│   │   ├── utils/         # Shared helpers
+│   │   └── types/         # TypeScript types
 │   ├── prisma/
-│   │   ├── schema.prisma   # Database schema
-│   │   └── migrations/     # Database migrations
+│   │   ├── schema.prisma  # Database schema
+│   │   └── migrations/    # Database migrations
 │   └── package.json
-│
-└── frontend/               # Next.js application
+└── frontend/
     ├── src/
-    │   ├── app/            # Next.js app router pages
-    │   │   ├── (auth)/     # Authentication pages
-    │   │   └── dashboard/  # Dashboard pages
-    │   ├── components/     # React components
-    │   ├── lib/            # Utilities & API client
-    │   ├── store/          # Zustand stores
-    │   └── types/          # TypeScript types
+    │   ├── app/           # App router pages
+    │   │   ├── (auth)/    # Auth pages
+    │   │   ├── dashboard/ # Main app pages
+    │   │   └── docs/      # Documentation page
+    │   ├── components/    # UI and feature components
+    │   ├── lib/           # API client and helpers
+    │   ├── store/         # Client state
+    │   └── types/         # Shared types
     └── package.json
 ```
 
-## ✨ Features
+## Features
 
-- 🔐 **Authentication & Authorization**
-  - User registration and login
-  - JWT-based authentication
-  - Role-based access control (Admin/Staff)
+1. Authentication and role-based access (Admin, Staff)
+2. Products, categories, and suppliers management
+3. Stock in, out, and adjustment flows with history tracking
+4. Low stock alerts with quick reorder actions
+5. Reports, exports, and analytics dashboard
+6. Staff management with activity history
+7. Settings area with documentation and support pages
 
-- 📦 **Product Management**
-  - Create, read, update, and delete products
-  - Product categorization
-  - SKU management
-  - Unit price tracking
+## App Pages
 
-- 📊 **Stock Management**
-  - Stock in/out operations
-  - Stock adjustments
-  - Stock movement history
-  - Low stock alerts
-  - Reorder level management
+1. Dashboard overview with KPIs, charts, and recent activity
+2. Products management with search, filters, and pagination
+3. Stock management with quick actions and history
+4. Suppliers and categories management
+5. Reports and exports
+6. Staff management with roles and activity history
+7. Docs, Support Center, Issues, Release Notes
 
-- 🏢 **Supplier Management**
-  - Supplier CRUD operations
-  - Contact information management
-  - Supplier-product relationships
+## Setup
 
-- 📈 **Reports & Analytics**
-  - Inventory value reports
-  - Stock movement charts
-  - Category performance analysis
-  - Export to Excel/PDF
-
-- 🔔 **Notifications**
-  - Low stock alerts
-  - System notifications
-  - Email notifications
-
-- ⚙️ **Settings**
-  - User profile management
-  - Appearance settings
-  - Security settings
-  - Notification preferences
-
-## 🛠️ Setup Instructions
-
-### Prerequisites
-
-- Node.js (v18 or higher)
-- PostgreSQL database
-- npm or yarn
-
-### Backend Setup
-
-1. Navigate to the backend directory:
-```bash
+1. Backend
+```
 cd backend
-```
-
-2. Install dependencies:
-```bash
 npm install
-```
-
-3. Set up environment variables:
-Create a `.env` file in the `backend` directory with the following variables:
-```env
-DATABASE_URL="postgresql://username:password@localhost:5432/stockms?schema=public"
-JWT_SECRET="your-secret-key-here"
-JWT_EXPIRES_IN="7d"
-PORT=5000
-NODE_ENV="development"
-```
-
-4. Set up the database:
-```bash
-# Generate Prisma Client
 npm run prisma:generate
-
-# Run migrations
 npm run prisma:migrate
-```
-
-5. Start the development server:
-```bash
 npm run dev
 ```
 
-The backend API will be running on `http://localhost:5000`
-
-### Frontend Setup
-
-1. Navigate to the frontend directory:
-```bash
-cd frontend
+2. Frontend
 ```
-
-2. Install dependencies:
-```bash
+cd frontend
 npm install
-```
-
-3. Set up environment variables:
-Create a `.env.local` file in the `frontend` directory:
-```env
-NEXT_PUBLIC_API_URL=http://localhost:5000
-```
-
-4. Start the development server:
-```bash
 npm run dev
 ```
 
-The frontend application will be running on `http://localhost:3000`
+3. Environment
+```
+backend/.env
+DATABASE_URL=postgresql://user:pass@localhost:5432/stockms
+JWT_SECRET=your-secret-key
+PORT=5000
+NODE_ENV=development
 
-## 🗄️ Database Schema
-
-The application uses PostgreSQL with Prisma ORM. Key models include:
-
-- **User**: Authentication and user management
-- **Product**: Product information and inventory
-- **Category**: Product categories
-- **Supplier**: Supplier information
-- **StockMovement**: Stock transaction history
-
-See `backend/prisma/schema.prisma` for the complete schema definition.
-
-## 🚦 Development Workflow
-
-1. **Start the database**: Ensure PostgreSQL is running
-2. **Start the backend**: `cd backend && npm run dev`
-3. **Start the frontend**: `cd frontend && npm run dev`
-4. **Access the application**: Open `http://localhost:3000` in your browser
-
-## 📦 Building for Production
-
-### Backend
-```bash
-cd backend
-npm run build
-npm start
+frontend/.env.local
+NEXT_PUBLIC_API_URL=http://localhost:5000/api
 ```
 
-### Frontend
-```bash
-cd frontend
-npm run build
-npm start
-```
+## Suggested Additions
 
-## 🔒 Security Features
+1. Role-based audit log for all critical actions (not just stock)
+2. Server-side pagination for large datasets where still client-side
+3. Email or webhook notifications for low stock and reorder events
+4. Saved filters and custom report presets
+5. Import tools for bulk product and supplier setup
 
-- Password hashing with bcryptjs
-- JWT token-based authentication
-- Protected API routes with middleware
-- Input validation with Zod
-- CORS configuration
-- Environment variable management
+## Suggested Removals or Simplifications
 
-## 📄 License
+1. Reduce duplicate UI patterns by centralizing shared status logic
+2. Limit client-side filtering for heavy lists when server-side exists
+3. Consolidate repeated dialog styles into shared components
+
+## License
 
 ISC
-
-## 👥 Contributing
-
-Contributions are welcome! Please feel free to submit a Pull Request.
-
-## 📧 Support
-
-For issues and questions, please open an issue in the repository.
-
