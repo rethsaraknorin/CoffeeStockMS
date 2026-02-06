@@ -25,7 +25,7 @@ import { useAuthStore } from '@/store/authStore';
 import api from '@/lib/api';
 import { toast } from 'sonner';
 
-interface StaffUser {
+export interface StaffUser {
   id: string;
   username: string;
   email: string;
