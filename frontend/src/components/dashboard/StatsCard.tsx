@@ -7,6 +7,10 @@ interface StatsCardProps {
   value: string | number;
   icon: LucideIcon;
   description?: string;
+  meta?: Array<{
+    label: string;
+    value: string | number;
+  }>;
   trend?: {
     value: number;
     isPositive: boolean;
@@ -19,23 +23,38 @@ export default function StatsCard({
   value, 
   icon: Icon, 
   description,
+  meta,
   trend,
   className 
 }: StatsCardProps) {
   return (
-    <Card className={cn('', className)}>
+    <Card className={cn('border-border/60 bg-background/70 backdrop-blur', className)}>
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-        <CardTitle className="text-sm font-medium">
+        <CardTitle className="text-sm font-medium text-muted-foreground">
           {title}
         </CardTitle>
-        <Icon className="h-4 w-4 text-muted-foreground" />
+        <span className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-background/60 text-muted-foreground">
+          <Icon className="h-4 w-4" />
+        </span>
       </CardHeader>
       <CardContent>
-        <div className="text-2xl font-bold">{value}</div>
+        <div className="text-2xl font-bold tracking-tight">{value}</div>
         {description && (
           <p className="text-xs text-muted-foreground mt-1">
             {description}
           </p>
+        )}
+        {meta && meta.length > 0 && (
+          <div className="mt-3 flex flex-wrap gap-2 text-xs text-muted-foreground">
+            {meta.map((item) => (
+              <span
+                key={item.label}
+                className="rounded-full border border-border bg-background/70 px-2.5 py-1"
+              >
+                {item.label}: <span className="text-foreground">{item.value}</span>
+              </span>
+            ))}
+          </div>
         )}
         {trend && (
           <p className={cn(

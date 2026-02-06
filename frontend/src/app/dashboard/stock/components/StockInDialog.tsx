@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -53,9 +53,20 @@ export default function StockInDialog({
     handleSubmit,
     formState: { errors },
     reset,
+    watch,
   } = useForm<StockForm>({
     resolver: zodResolver(stockSchema),
   });
+
+  const quantity = watch('quantity');
+  const currentStock = Number(product.currentStock);
+  const newStock = currentStock + (quantity || 0);
+
+  useEffect(() => {
+    if (open) {
+      reset({ quantity: 1, notes: '' });
+    }
+  }, [open, reset]);
 
   const onSubmit = async (data: StockForm) => {
     setLoading(true);
@@ -103,6 +114,7 @@ export default function StockInDialog({
             <Input
               id="quantity"
               type="number"
+              min={1}
               placeholder="50"
               {...register('quantity', { valueAsNumber: true })}
             />
@@ -110,7 +122,7 @@ export default function StockInDialog({
               <p className="text-sm text-destructive">{errors.quantity.message}</p>
             )}
             <p className="text-xs text-muted-foreground">
-              New stock will be: {Number(product.currentStock) + (Number(register('quantity').value) || 0)} {product.unit}
+              New stock will be: {newStock} {product.unit}
             </p>
           </div>
 

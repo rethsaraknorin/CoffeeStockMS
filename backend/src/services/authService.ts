@@ -22,7 +22,7 @@ interface UpdateProfileData {
 export const authService = {
   // Register new user
   register: async (data: RegisterData) => {
-    const { username, email, password, role } = data;
+    const { username, email, password } = data;
 
     // Check if user already exists
     const existingUser = await prisma.user.findFirst({
@@ -44,7 +44,7 @@ export const authService = {
         username,
         email,
         password: hashedPassword,
-        role: role || 'STAFF'
+        role: 'STAFF'
       },
       select: {
         id: true,

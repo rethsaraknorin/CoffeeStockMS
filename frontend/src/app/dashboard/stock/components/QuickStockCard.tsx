@@ -4,6 +4,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { TrendingUp, TrendingDown, Settings } from 'lucide-react';
+import { getStockStatus } from '@/lib/stock';
 
 interface Product {
   id: string;
@@ -33,13 +34,7 @@ export default function QuickStockCard({
   const stock = Number(product.currentStock);
   const reorder = Number(product.reorderLevel);
   
-  const getStockStatus = () => {
-    if (stock === 0) return { variant: 'destructive' as const, label: 'Out of Stock' };
-    if (stock <= reorder) return { variant: 'secondary' as const, label: 'Low Stock' };
-    return { variant: 'default' as const, label: 'In Stock' };
-  };
-
-  const status = getStockStatus();
+  const status = getStockStatus(stock, reorder);
 
   return (
     <Card>
@@ -51,7 +46,9 @@ export default function QuickStockCard({
               SKU: {product.sku} • {product.category.name}
             </CardDescription>
           </div>
-          <Badge variant={status.variant}>{status.label}</Badge>
+          <Badge variant={status.variant} className={status.className}>
+            {status.label}
+          </Badge>
         </div>
       </CardHeader>
       <CardContent className="space-y-3">

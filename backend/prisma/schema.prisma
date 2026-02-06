@@ -17,6 +17,8 @@ model User {
   updatedAt DateTime @updatedAt
 
   @@map("users")
+  @@index([role])
+  @@index([createdAt])
 }
 
 enum Role {
@@ -33,6 +35,7 @@ model Category {
   updatedAt   DateTime  @updatedAt
 
   @@map("categories")
+  @@index([createdAt])
 }
 
 model Supplier {
@@ -47,6 +50,7 @@ model Supplier {
   updatedAt DateTime  @updatedAt
 
   @@map("suppliers")
+  @@index([createdAt])
 }
 
 model Product {
@@ -67,6 +71,9 @@ model Product {
   updatedAt      DateTime        @updatedAt
 
   @@map("products")
+  @@index([categoryId])
+  @@index([supplierId])
+  @@index([createdAt])
 }
 
 model StockMovement {
@@ -80,6 +87,9 @@ model StockMovement {
   createdAt DateTime     @default(now())
 
   @@map("stock_movements")
+  @@index([productId])
+  @@index([createdAt])
+  @@index([type])
 }
 
 enum MovementType {

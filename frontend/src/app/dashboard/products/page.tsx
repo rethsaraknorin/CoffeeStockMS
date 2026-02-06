@@ -41,25 +41,47 @@ export default function ProductsPage() {
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
+  const [debouncedSearch, setDebouncedSearch] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [refreshKey, setRefreshKey] = useState(0);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalProducts, setTotalProducts] = useState(0);
+  const [totalPages, setTotalPages] = useState(1);
+  const pageSize = 10;
 
   useEffect(() => {
-    fetchData();
+    const t = setTimeout(() => {
+      setDebouncedSearch(searchQuery.trim());
+    }, 300);
+    return () => clearTimeout(t);
+  }, [searchQuery]);
+
+  useEffect(() => {
+    fetchProducts();
+  }, [refreshKey, currentPage, debouncedSearch, selectedCategory]);
+
+  useEffect(() => {
+    fetchCategories();
   }, [refreshKey]);
 
-  const fetchData = async () => {
+  const fetchProducts = async () => {
     try {
       setLoading(true);
       
       // Fetch products
-      const productsResponse = await api.get('/products');
-      setProducts(productsResponse.data.data.products || []);
-
-      // Fetch categories
-      const categoriesResponse = await api.get('/categories');
-      setCategories(categoriesResponse.data.data || []);
+      const productsResponse = await api.get('/products', {
+        params: {
+          page: currentPage,
+          limit: pageSize,
+          search: debouncedSearch || undefined,
+          categoryId: selectedCategory === 'all' ? undefined : selectedCategory
+        }
+      });
+      const productsData = productsResponse.data.data;
+      setProducts(productsData.products || []);
+      setTotalProducts(productsData.pagination?.total || 0);
+      setTotalPages(productsData.pagination?.totalPages || 1);
       
     } catch (error: any) {
       console.error('Fetch error:', error);
@@ -69,22 +91,23 @@ export default function ProductsPage() {
     }
   };
 
+  const fetchCategories = async () => {
+    try {
+      const categoriesResponse = await api.get('/categories');
+      setCategories(categoriesResponse.data.data || []);
+    } catch (error: any) {
+      console.error('Fetch error:', error);
+      toast.error('Failed to load categories');
+    }
+  };
+
   const handleRefresh = () => {
     setRefreshKey(prev => prev + 1);
   };
 
-  // Filter products
-  const filteredProducts = products.filter(product => {
-    const matchesSearch = 
-      product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      product.sku.toLowerCase().includes(searchQuery.toLowerCase());
-    
-    const matchesCategory = 
-      selectedCategory === 'all' || 
-      product.category.id === selectedCategory;
-    
-    return matchesSearch && matchesCategory;
-  });
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [debouncedSearch, selectedCategory]);
 
   if (loading) {
     return (
@@ -110,10 +133,10 @@ export default function ProductsPage() {
             </p>
             <div className="flex flex-wrap gap-2 text-xs">
               <span className="rounded-full border border-border bg-background/70 px-3 py-1 text-muted-foreground">
-                Total: {products.length}
+                Total: {totalProducts}
               </span>
               <span className="rounded-full border border-border bg-background/70 px-3 py-1 text-muted-foreground">
-                Showing: {filteredProducts.length}
+                Showing: {products.length}
               </span>
             </div>
           </div>
@@ -167,14 +190,53 @@ export default function ProductsPage() {
           <CardHeader>
             <CardTitle>Products List</CardTitle>
             <CardDescription>
-              {filteredProducts.length} product{filteredProducts.length !== 1 ? 's' : ''} found
+              {totalProducts} product{totalProducts !== 1 ? 's' : ''} found
             </CardDescription>
           </CardHeader>
           <CardContent>
             <ProductsTable 
-              products={filteredProducts} 
+              products={products} 
               onRefresh={handleRefresh}
             />
+            {totalProducts > 0 && (
+              <div className="flex flex-col items-center justify-between gap-3 border-t px-4 py-3 text-sm text-muted-foreground sm:flex-row">
+                <div>
+                  Showing{' '}
+                  <span className="font-medium text-foreground">
+                    {(currentPage - 1) * pageSize + 1}
+                  </span>{' '}
+                  to{' '}
+                  <span className="font-medium text-foreground">
+                    {Math.min(currentPage * pageSize, totalProducts)}
+                  </span>{' '}
+                  of{' '}
+                  <span className="font-medium text-foreground">{totalProducts}</span> products
+                </div>
+                <div className="flex items-center gap-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                    disabled={currentPage === 1}
+                  >
+                    Prev
+                  </Button>
+                  <span className="min-w-[90px] text-center">
+                    Page{' '}
+                    <span className="font-medium text-foreground">{currentPage}</span> of{' '}
+                    <span className="font-medium text-foreground">{totalPages}</span>
+                  </span>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+                    disabled={currentPage === totalPages}
+                  >
+                    Next
+                  </Button>
+                </div>
+              </div>
+            )}
           </CardContent>
         </Card>
 

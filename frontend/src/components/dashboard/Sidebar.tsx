@@ -34,6 +34,7 @@ const navItems = [
   { icon: Users, label: 'Suppliers', href: '/dashboard/suppliers' },
   { icon: BarChart3, label: 'Reports', href: '/dashboard/reports' },
   { icon: Settings, label: 'Settings', href: '/dashboard/settings' },
+  { icon: Users, label: 'Staff', href: '/dashboard/staff', adminOnly: true },
 ];
 
 interface SidebarProps {
@@ -110,7 +111,9 @@ export default function Sidebar({ mobileOpen, onClose }: SidebarProps) {
 
       {/* Navigation */}
       <nav className="flex-1 space-y-1 p-4">
-        {navItems.map((item) => {
+        {navItems
+          .filter((item) => !item.adminOnly || user?.role === 'ADMIN')
+          .map((item) => {
           const Icon = item.icon;
           const isActive = pathname === item.href;
           

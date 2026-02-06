@@ -26,18 +26,26 @@ interface UpdateProductData {
 
 export const productService = {
   // Get all products with pagination and search
-  getAllProducts: async (page: number = 1, limit: number = 10, search?: string) => {
+  getAllProducts: async (
+    page: number = 1,
+    limit: number = 10,
+    search?: string,
+    categoryId?: string
+  ) => {
     const skip = (page - 1) * limit;
 
-    const where = search
-      ? {
-          OR: [
-            { name: { contains: search, mode: 'insensitive' as const } },
-            { sku: { contains: search, mode: 'insensitive' as const } },
-            { description: { contains: search, mode: 'insensitive' as const } }
-          ]
-        }
-      : {};
+    const where = {
+      ...(search
+        ? {
+            OR: [
+              { name: { contains: search, mode: 'insensitive' as const } },
+              { sku: { contains: search, mode: 'insensitive' as const } },
+              { description: { contains: search, mode: 'insensitive' as const } }
+            ]
+          }
+        : {}),
+      ...(categoryId ? { categoryId } : {})
+    };
 
     const [products, total] = await Promise.all([
       prisma.product.findMany({

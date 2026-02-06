@@ -8,6 +8,7 @@ import LowStockAlert from '@/components/dashboard/LowStockAlert';
 import RecentActivity from '@/components/dashboard/RecentActivity';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import api from '@/lib/api';
 import { toast } from 'sonner';
 
@@ -67,13 +68,12 @@ export default function DashboardPage() {
   const fetchDashboardData = async () => {
     try {
       setLoading(true);
-      
+
       const dashboardResponse = await api.get('/reports/dashboard');
       setDashboardData(dashboardResponse.data.data);
 
       const movementsResponse = await api.get('/stock/movements?page=1&limit=5');
       setRecentActivity(movementsResponse.data.data.movements || []);
-      
     } catch (error: any) {
       console.error('Dashboard fetch error:', error);
       toast.error('Failed to load dashboard data');
@@ -94,6 +94,19 @@ export default function DashboardPage() {
     stock: product.currentStock,
     reorderLevel: 10,
   })) || [];
+
+  const avgValuePerProduct = dashboardData
+    ? Number(dashboardData.overview.totalStockValue) / Math.max(1, dashboardData.overview.totalProducts)
+    : 0;
+
+  const mostUnderstocked = dashboardData?.lowStockProducts
+    .map((product) => ({
+      ...product,
+      deficit: product.reorderLevel - product.currentStock
+    }))
+    .sort((a, b) => b.deficit - a.deficit)[0];
+
+  const topValueProduct = dashboardData?.topProductsByValue?.[0];
 
   if (loading) {
     return (
@@ -148,6 +161,9 @@ export default function DashboardPage() {
                 Products: {dashboardData.overview.totalProducts}
               </span>
               <span className="rounded-full border border-border bg-background/70 px-3 py-1 text-muted-foreground">
+                Suppliers: {dashboardData.overview.totalSuppliers}
+              </span>
+              <span className="rounded-full border border-border bg-background/70 px-3 py-1 text-muted-foreground">
                 Low Stock: {dashboardData.overview.lowStockCount}
               </span>
               <span className="rounded-full border border-border bg-background/70 px-3 py-1 text-muted-foreground">
@@ -155,8 +171,8 @@ export default function DashboardPage() {
               </span>
             </div>
           </div>
-          <Button 
-            onClick={handleRefresh} 
+          <Button
+            onClick={handleRefresh}
             disabled={refreshing}
             variant="outline"
             size="default"
@@ -173,33 +189,117 @@ export default function DashboardPage() {
             title="Total Products"
             value={dashboardData.overview.totalProducts}
             icon={Package}
-            description={`${dashboardData.overview.totalCategories} categories`}
+            description="All active products"
+            meta={[
+              { label: 'Categories', value: dashboardData.overview.totalCategories },
+              { label: 'Low Stock', value: dashboardData.overview.lowStockCount }
+            ]}
             className="border-l-4 border-l-blue-500 shadow-sm hover:shadow-md transition-shadow"
           />
-          
+
           <StatsCard
             title="Stock Value"
             value={`$${parseFloat(dashboardData.overview.totalStockValue).toLocaleString()}`}
             icon={DollarSign}
             description="Total inventory worth"
+            meta={[
+              { label: 'Products', value: dashboardData.overview.totalProducts },
+              { label: 'Out', value: dashboardData.overview.outOfStockCount }
+            ]}
             className="border-l-4 border-l-emerald-500 shadow-sm hover:shadow-md transition-shadow"
           />
-          
+
           <StatsCard
             title="Low Stock"
             value={dashboardData.overview.lowStockCount}
             icon={AlertTriangle}
-            description={`${dashboardData.overview.outOfStockCount} out of stock`}
+            description="Below reorder level"
+            meta={[
+              { label: 'Out of Stock', value: dashboardData.overview.outOfStockCount },
+              { label: 'Action', value: 'Reorder' }
+            ]}
             className="border-l-4 border-l-amber-500 shadow-sm hover:shadow-md transition-shadow"
           />
-          
+
           <StatsCard
             title="Today's Activity"
             value={dashboardData.movements.today}
             icon={TrendingUp}
-            description={`${dashboardData.movements.thisMonth} this month`}
+            description="Stock movements today"
+            meta={[
+              { label: 'This Month', value: dashboardData.movements.thisMonth },
+              { label: 'Scope', value: 'All' }
+            ]}
             className="border-l-4 border-l-purple-500 shadow-sm hover:shadow-md transition-shadow"
           />
+        </div>
+
+        <div className="flex items-center gap-3">
+          <span className="text-sm font-semibold text-muted-foreground">Insights</span>
+          <div className="h-px flex-1 bg-border" />
+        </div>
+
+        {/* Insight Row */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          <Card className="border-border/60 bg-background/70 backdrop-blur shadow-sm hover:shadow-md transition-shadow">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium text-muted-foreground">Avg Value per Product</CardTitle>
+              <span className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-background/60 text-muted-foreground">
+                <DollarSign className="h-4 w-4" />
+              </span>
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold tracking-tight">
+                ${avgValuePerProduct.toLocaleString(undefined, { maximumFractionDigits: 0 })}
+              </div>
+              <p className="text-xs text-muted-foreground mt-1">
+                Based on total stock value and product count
+              </p>
+            </CardContent>
+          </Card>
+
+          <Card className="border-border/60 bg-background/70 backdrop-blur shadow-sm hover:shadow-md transition-shadow">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium text-muted-foreground">Most Understocked</CardTitle>
+              <span className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-background/60 text-muted-foreground">
+                <AlertTriangle className="h-4 w-4" />
+              </span>
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold tracking-tight">
+                {mostUnderstocked ? mostUnderstocked.name : 'All Good'}
+              </div>
+              <p className="text-xs text-muted-foreground mt-1">
+                {mostUnderstocked
+                  ? `Deficit: ${mostUnderstocked.deficit} units`
+                  : 'No products below reorder level'}
+              </p>
+            </CardContent>
+          </Card>
+
+          <Card className="border-border/60 bg-background/70 backdrop-blur shadow-sm hover:shadow-md transition-shadow">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium text-muted-foreground">Top Value Product</CardTitle>
+              <span className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-background/60 text-muted-foreground">
+                <Package className="h-4 w-4" />
+              </span>
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold tracking-tight">
+                {topValueProduct ? topValueProduct.name : 'N/A'}
+              </div>
+              <p className="text-xs text-muted-foreground mt-1">
+                {topValueProduct
+                  ? `Value: $${Number(topValueProduct.stockValue).toLocaleString()}`
+                  : 'No data available'}
+              </p>
+            </CardContent>
+          </Card>
+        </div>
+
+        <div className="flex items-center gap-3">
+          <span className="text-sm font-semibold text-muted-foreground">Charts</span>
+          <div className="h-px flex-1 bg-border" />
         </div>
 
         {/* Charts and Alerts Row - Responsive */}
@@ -207,13 +307,18 @@ export default function DashboardPage() {
           <div className="order-2 xl:order-1">
             <StockChart data={chartData} />
           </div>
-          
+
           <div className="order-1 xl:order-2">
             <LowStockAlert
               products={dashboardData.lowStockProducts.slice(0, 5)}
               onReorder={fetchDashboardData}
             />
           </div>
+        </div>
+
+        <div className="flex items-center gap-3">
+          <span className="text-sm font-semibold text-muted-foreground">Recent Activity</span>
+          <div className="h-px flex-1 bg-border" />
         </div>
 
         {/* Recent Activity - Full Width */}

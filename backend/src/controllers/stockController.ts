@@ -110,7 +110,10 @@ export const stockController = {
       const page = parseInt(req.query.page as string) || 1;
       const limit = parseInt(req.query.limit as string) || 20;
 
-      const result = await stockService.getAllStockMovements(page, limit);
+      const startDate = req.query.startDate as string | undefined;
+      const endDate = req.query.endDate as string | undefined;
+
+      const result = await stockService.getAllStockMovements(page, limit, startDate, endDate);
 
       res.status(200).json({
         success: true,

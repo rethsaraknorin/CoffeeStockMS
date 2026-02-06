@@ -101,7 +101,7 @@ export default function LoginPage() {
                             </CardDescription>
                         </CardHeader>
                         <form onSubmit={handleSubmit(onSubmit)}>
-                            <CardContent className="space-y-6">
+                            <CardContent className="space-y-6 pb-2">
                                 <div className="space-y-2">
                                     <Label htmlFor="email">Email</Label>
                                     <Input
@@ -133,7 +133,7 @@ export default function LoginPage() {
                                 </div>
                             </CardContent>
 
-                            <CardFooter className="flex flex-col space-y-6">
+                            <CardFooter className="flex flex-col space-y-6 pt-2">
                                 <Button type="submit" className="w-full" disabled={isLoading}>
                                     {isLoading ? 'Signing in...' : 'Sign In'}
                                 </Button>

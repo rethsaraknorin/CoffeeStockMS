@@ -3,10 +3,36 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Coffee, Database, Server, Code, ExternalLink } from 'lucide-react';
-import { Separator } from '@/components/ui/separator';
+import { Coffee, ExternalLink, BookOpen, LifeBuoy, Bug, Megaphone } from 'lucide-react';
 
 export default function SystemInfo() {
+  const resources = [
+    {
+      title: 'Documentation',
+      description: 'Setup guides, usage, and API references',
+      href: '/docs',
+      icon: BookOpen
+    },
+    {
+      title: 'Support Center',
+      description: 'Get help and contact support',
+      href: '/support',
+      icon: LifeBuoy
+    },
+    {
+      title: 'Report an Issue',
+      description: 'Submit bugs or feature requests',
+      href: '/issues',
+      icon: Bug
+    },
+    {
+      title: 'Release Notes',
+      description: 'See what changed in each version',
+      href: '/releases',
+      icon: Megaphone
+    }
+  ];
+
   return (
     <div className="space-y-6">
       {/* Application Info */}
@@ -51,29 +77,40 @@ export default function SystemInfo() {
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-2">
-          <Button variant="outline" className="w-full justify-between">
-            Documentation
-            <ExternalLink className="h-4 w-4" />
-          </Button>
-          <Button variant="outline" className="w-full justify-between">
-            Support Center
-            <ExternalLink className="h-4 w-4" />
-          </Button>
-          <Button variant="outline" className="w-full justify-between">
-            Report an Issue
-            <ExternalLink className="h-4 w-4" />
-          </Button>
-          <Button variant="outline" className="w-full justify-between">
-            Release Notes
-            <ExternalLink className="h-4 w-4" />
-          </Button>
+          {resources.map((item) => {
+            const Icon = item.icon;
+            return (
+              <Button
+                key={item.title}
+                variant="outline"
+                className="w-full justify-between p-0"
+                asChild
+              >
+                <a
+                  href={item.href}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="flex w-full items-center justify-between px-4 py-3"
+                >
+                  <span className="flex items-center gap-3 text-left">
+                    <Icon className="h-4 w-4 text-muted-foreground" />
+                    <span className="flex flex-col">
+                      <span className="font-medium">{item.title}</span>
+                      <span className="text-xs text-muted-foreground">{item.description}</span>
+                    </span>
+                  </span>
+                  <ExternalLink className="h-4 w-4" />
+                </a>
+              </Button>
+            );
+          })}
         </CardContent>
       </Card>
 
       {/* Footer */}
       <div className="text-center text-sm text-muted-foreground">
-        <p>Built with ❤️ for coffee shop inventory management</p>
-        <p className="mt-1">© 2026 Reth Saraknorin. All rights reserved.</p>
+        <p>Built with care for coffee shop inventory management</p>
+        <p className="mt-1">(c) 2026 Reth Saraknorin. All rights reserved.</p>
       </div>
     </div>
   );

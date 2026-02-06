@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { MoreHorizontal, Pencil, Trash2, Package } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { getStockStatus } from '@/lib/stock';
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -51,12 +52,6 @@ export default function ProductsTable({ products, onRefresh }: ProductsTableProp
     const [editingProduct, setEditingProduct] = useState<Product | null>(null);
     const [deletingProduct, setDeletingProduct] = useState<Product | null>(null);
 
-    const getStockStatus = (stock: number, reorderLevel: number) => {
-        if (stock === 0) return { label: 'Out of Stock', variant: 'destructive' as const };
-        if (stock <= reorderLevel) return { label: 'Low Stock', variant: 'secondary' as const };
-        return { label: 'In Stock', variant: 'default' as const };
-    };
-
     if (products.length === 0) {
         return (
             <div className="flex flex-col items-center justify-center py-12 text-center">
@@ -78,6 +73,7 @@ export default function ProductsTable({ products, onRefresh }: ProductsTableProp
                             <TableHead>Product</TableHead>
                             <TableHead>Category</TableHead>
                             <TableHead>Price</TableHead>
+                            <TableHead>Total Value</TableHead>
                             <TableHead>Stock</TableHead>
                             <TableHead>Status</TableHead>
                             <TableHead className="text-right">Actions</TableHead>
@@ -102,10 +98,15 @@ export default function ProductsTable({ products, onRefresh }: ProductsTableProp
                                     </TableCell>
                                     <TableCell>${Number(product.unitPrice).toFixed(2)}</TableCell>
                                     <TableCell>
+                                        ${Number(product.unitPrice * product.currentStock).toFixed(2)}
+                                    </TableCell>
+                                    <TableCell>
                                         <span className="font-mono">{Number(product.currentStock)}</span> {product.unit}
                                     </TableCell>
                                     <TableCell>
-                                        <Badge variant={status.variant}>{status.label}</Badge>
+                                    <Badge variant={status.variant} className={status.className}>
+                                        {status.label}
+                                    </Badge>
                                     </TableCell>
                                     <TableCell className="text-right">
                                         <DropdownMenu>

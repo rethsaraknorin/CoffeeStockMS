@@ -199,11 +199,34 @@ export const stockService = {
   },
 
   // Get all recent stock movements
-  getAllStockMovements: async (page: number = 1, limit: number = 20) => {
+  getAllStockMovements: async (
+    page: number = 1,
+    limit: number = 20,
+    startDate?: string,
+    endDate?: string
+  ) => {
     const skip = (page - 1) * limit;
+    const where = {
+      ...(startDate
+        ? {
+            createdAt: {
+              gte: new Date(startDate)
+            }
+          }
+        : {}),
+      ...(endDate
+        ? {
+            createdAt: {
+              ...(startDate ? { gte: new Date(startDate) } : {}),
+              lte: new Date(new Date(endDate).setHours(23, 59, 59, 999))
+            }
+          }
+        : {})
+    };
 
     const [movements, total] = await Promise.all([
       prisma.stockMovement.findMany({
+        where,
         include: {
           product: {
             include: {
@@ -216,7 +239,7 @@ export const stockService = {
         skip,
         take: limit
       }),
-      prisma.stockMovement.count()
+      prisma.stockMovement.count({ where })
     ]);
 
     return {

@@ -30,6 +30,7 @@ const productSchema = z.object({
   name: z.string().min(2, 'Name must be at least 2 characters'),
   sku: z.string().min(2, 'SKU must be at least 2 characters'),
   description: z.string().optional(),
+  categoryId: z.string().min(1, 'Category is required'),
   supplierId: z.string().optional(),
   unitPrice: z.number().min(0, 'Price must be positive'),
   currentStock: z.number().min(0, 'Stock must be positive'),
@@ -44,6 +45,10 @@ interface Product {
   name: string;
   sku: string;
   description: string;
+  category: {
+    id: string;
+    name: string;
+  };
   supplier?: {
     id: string;
     name: string;
@@ -69,6 +74,7 @@ export default function EditProductDialog({
 }: EditProductDialogProps) {
   const [loading, setLoading] = useState(false);
   const [suppliers, setSuppliers] = useState<{ id: string; name: string }[]>([]);
+  const [categories, setCategories] = useState<{ id: string; name: string }[]>([]);
 
   const {
     register,
@@ -83,6 +89,7 @@ export default function EditProductDialog({
       name: product.name,
       sku: product.sku,
       description: product.description || '',
+      categoryId: product.category?.id,
       supplierId: product.supplier?.id,
       unitPrice: product.unitPrice,
       currentStock: product.currentStock,
@@ -96,6 +103,7 @@ export default function EditProductDialog({
       name: product.name,
       sku: product.sku,
       description: product.description || '',
+      categoryId: product.category?.id,
       supplierId: product.supplier?.id,
       unitPrice: product.unitPrice,
       currentStock: product.currentStock,
@@ -115,7 +123,17 @@ export default function EditProductDialog({
         toast.error('Failed to load suppliers');
       }
     };
+    const fetchCategories = async () => {
+      try {
+        const response = await api.get('/categories');
+        setCategories(response.data.data || []);
+      } catch (error: any) {
+        console.error('Fetch categories error:', error);
+        toast.error('Failed to load categories');
+      }
+    };
     fetchSuppliers();
+    fetchCategories();
   }, [open]);
 
   const onSubmit = async (data: ProductForm) => {
@@ -146,7 +164,7 @@ export default function EditProductDialog({
         </DialogHeader>
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="name">Product Name *</Label>
               <Input id="name" {...register('name')} />
@@ -169,13 +187,37 @@ export default function EditProductDialog({
             <Textarea id="description" {...register('description')} />
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="categoryId">Category *</Label>
+              <Select
+                onValueChange={(value) => setValue('categoryId', value, { shouldValidate: true })}
+                value={watch('categoryId')}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select category" />
+                </SelectTrigger>
+                <SelectContent>
+                  {categories.map((category) => (
+                    <SelectItem key={category.id} value={category.id}>
+                      {category.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              {errors.categoryId && (
+                <p className="text-sm text-destructive">{errors.categoryId.message}</p>
+              )}
+            </div>
+
             <div className="space-y-2">
               <Label htmlFor="unitPrice">Unit Price ($) *</Label>
               <Input
                 id="unitPrice"
                 type="number"
                 step="0.01"
+                min={0}
+                inputMode="decimal"
                 {...register('unitPrice', { valueAsNumber: true })}
               />
               {errors.unitPrice && (
@@ -186,7 +228,9 @@ export default function EditProductDialog({
             <div className="space-y-2">
               <Label htmlFor="supplierId">Supplier</Label>
               <Select
-                onValueChange={(value) => setValue('supplierId', value === 'none' ? undefined : value)}
+                onValueChange={(value) =>
+                  setValue('supplierId', value === 'none' ? undefined : value, { shouldValidate: true })
+                }
                 value={watch('supplierId')}
               >
                 <SelectTrigger>
@@ -205,16 +249,34 @@ export default function EditProductDialog({
 
             <div className="space-y-2">
               <Label htmlFor="unit">Unit *</Label>
-              <Input id="unit" {...register('unit')} />
+              <Select
+                onValueChange={(value) => setValue('unit', value, { shouldValidate: true })}
+                value={watch('unit')}
+              >
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="pcs">Pieces</SelectItem>
+                  <SelectItem value="kg">Kilograms</SelectItem>
+                  <SelectItem value="ltr">Liters</SelectItem>
+                  <SelectItem value="cups">Cups</SelectItem>
+                  <SelectItem value="bags">Bags</SelectItem>
+                </SelectContent>
+              </Select>
+              {errors.unit && (
+                <p className="text-sm text-destructive">{errors.unit.message}</p>
+              )}
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="currentStock">Current Stock *</Label>
               <Input
                 id="currentStock"
                 type="number"
+                min={0}
                 {...register('currentStock', { valueAsNumber: true })}
               />
               {errors.currentStock && (
@@ -227,8 +289,12 @@ export default function EditProductDialog({
               <Input
                 id="reorderLevel"
                 type="number"
+                min={0}
                 {...register('reorderLevel', { valueAsNumber: true })}
               />
+              <p className="text-xs text-muted-foreground">
+                Low stock alerts trigger below this level
+              </p>
               {errors.reorderLevel && (
                 <p className="text-sm text-destructive">{errors.reorderLevel.message}</p>
               )}

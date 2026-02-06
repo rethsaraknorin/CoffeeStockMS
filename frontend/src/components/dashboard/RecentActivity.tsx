@@ -23,32 +23,43 @@ interface RecentActivityProps {
 }
 
 const typeConfig = {
-  IN: { 
-    icon: TrendingUp, 
-    label: 'In', 
+  IN: {
+    icon: TrendingUp,
+    label: 'In',
     color: 'text-green-600 dark:text-green-400',
     bg: 'bg-green-50 dark:bg-green-950/30',
-    badgeClass: 'bg-green-100 text-green-700 hover:bg-green-100 dark:bg-green-900/40 dark:text-green-300 dark:hover:bg-green-900/50'
+    badgeClass:
+      'bg-green-100 text-green-700 hover:bg-green-100 dark:bg-green-900/40 dark:text-green-300 dark:hover:bg-green-900/50'
   },
-  OUT: { 
-    icon: TrendingDown, 
-    label: 'Out', 
+  OUT: {
+    icon: TrendingDown,
+    label: 'Out',
     color: 'text-red-600 dark:text-red-400',
     bg: 'bg-red-50 dark:bg-red-950/30',
-    badgeClass: 'bg-red-100 text-red-700 hover:bg-red-100 dark:bg-red-900/40 dark:text-red-300 dark:hover:bg-red-900/50'
+    badgeClass:
+      'bg-red-100 text-red-700 hover:bg-red-100 dark:bg-red-900/40 dark:text-red-300 dark:hover:bg-red-900/50'
   },
-  ADJUSTMENT: { 
-    icon: Settings, 
-    label: 'Adjust', 
+  ADJUSTMENT: {
+    icon: Settings,
+    label: 'Adjust',
     color: 'text-blue-600 dark:text-blue-400',
     bg: 'bg-blue-50 dark:bg-blue-950/30',
-    badgeClass: 'bg-blue-100 text-blue-700 hover:bg-blue-100 dark:bg-blue-900/40 dark:text-blue-300 dark:hover:bg-blue-900/50'
-  },
+    badgeClass:
+      'bg-blue-100 text-blue-700 hover:bg-blue-100 dark:bg-blue-900/40 dark:text-blue-300 dark:hover:bg-blue-900/50'
+  }
 };
 
 export default function RecentActivity({ activities }: RecentActivityProps) {
+  const latestActivity = activities[0];
+
+  const getQuantityPrefix = (type: Activity['type']) => {
+    if (type === 'IN') return '+';
+    if (type === 'OUT') return '-';
+    return 'adj';
+  };
+
   return (
-    <Card className="shadow-sm hover:shadow-md transition-shadow border-l-4 border-l-purple-500">
+    <Card className="shadow-sm hover:shadow-md transition-shadow border-l-4 border-l-purple-500 border-border/60 bg-background/70 backdrop-blur">
       <CardHeader className="pb-3">
         <div className="flex items-center justify-between">
           <div className="space-y-1">
@@ -60,9 +71,16 @@ export default function RecentActivity({ activities }: RecentActivityProps) {
               Latest stock movements
             </CardDescription>
           </div>
-          <Badge variant="outline" className="text-xs">
-            {activities.length} items
-          </Badge>
+          <div className="flex items-center gap-2">
+            {latestActivity && (
+              <Badge variant="outline" className="text-xs text-muted-foreground">
+                Updated {new Date(latestActivity.createdAt).toLocaleDateString()}
+              </Badge>
+            )}
+            <Badge variant="outline" className="text-xs">
+              {activities.length} items
+            </Badge>
+          </div>
         </div>
       </CardHeader>
       <CardContent>
@@ -77,30 +95,30 @@ export default function RecentActivity({ activities }: RecentActivityProps) {
         ) : (
           <ScrollArea className="h-[280px] sm:h-[320px] pr-2">
             <div className="space-y-2">
-              {activities.map((activity, index) => {
+              {activities.map((activity) => {
                 const config = typeConfig[activity.type];
                 const Icon = config.icon;
-                
+
                 return (
-                  <div 
-                    key={activity.id} 
+                  <div
+                    key={activity.id}
                     className={cn(
-                      "group relative rounded-lg border p-3 transition-all hover:shadow-sm hover:border-primary/50 dark:border-white/10",
+                      'group relative rounded-lg border p-3 transition-all hover:shadow-sm hover:border-primary/50 dark:border-white/10',
                       config.bg
                     )}
                   >
                     <div className="flex items-start gap-3">
-                      {/* Icon */}
-                      <div className={cn(
-                        'rounded-lg p-2 flex-shrink-0 transition-transform group-hover:scale-110',
-                        activity.type === 'IN' && 'bg-green-500/10 dark:bg-green-500/15',
-                        activity.type === 'OUT' && 'bg-red-500/10 dark:bg-red-500/15',
-                        activity.type === 'ADJUSTMENT' && 'bg-blue-500/10 dark:bg-blue-500/15'
-                      )}>
+                      <div
+                        className={cn(
+                          'rounded-lg p-2 flex-shrink-0 transition-transform group-hover:scale-110',
+                          activity.type === 'IN' && 'bg-green-500/10 dark:bg-green-500/15',
+                          activity.type === 'OUT' && 'bg-red-500/10 dark:bg-red-500/15',
+                          activity.type === 'ADJUSTMENT' && 'bg-blue-500/10 dark:bg-blue-500/15'
+                        )}
+                      >
                         <Icon className={cn('h-4 w-4', config.color)} />
                       </div>
-                      
-                      {/* Content */}
+
                       <div className="flex-1 min-w-0 space-y-1">
                         <div className="flex items-center justify-between gap-2">
                           <h4 className="text-sm font-semibold truncate text-slate-900 dark:text-slate-100">
@@ -110,13 +128,15 @@ export default function RecentActivity({ activities }: RecentActivityProps) {
                             {config.label}
                           </Badge>
                         </div>
-                        
+
                         <div className="flex items-center gap-2 text-xs text-slate-600 dark:text-slate-300">
-                          <span className="font-medium">{activity.quantity} units</span>
-                          <span>•</span>
+                          <span className="font-medium">
+                            {getQuantityPrefix(activity.type)}{activity.quantity} units
+                          </span>
+                          <span>-</span>
                           <span className="truncate">SKU: {activity.product.sku}</span>
                         </div>
-                        
+
                         <div className="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400">
                           <Clock className="h-3 w-3" />
                           <span>
@@ -127,8 +147,8 @@ export default function RecentActivity({ activities }: RecentActivityProps) {
                               minute: '2-digit'
                             })}
                           </span>
-                          <span>•</span>
-                          <span className="truncate">by {activity.createdBy}</span>
+                          <span>-</span>
+                          <span className="truncate">by {activity.createdBy || 'System'}</span>
                         </div>
                       </div>
                     </div>

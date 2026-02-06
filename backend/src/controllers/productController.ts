@@ -8,8 +8,9 @@ export const productController = {
       const page = parseInt(req.query.page as string) || 1;
       const limit = parseInt(req.query.limit as string) || 10;
       const search = req.query.search as string;
+      const categoryId = req.query.categoryId as string | undefined;
 
-      const result = await productService.getAllProducts(page, limit, search);
+      const result = await productService.getAllProducts(page, limit, search, categoryId);
 
       res.status(200).json({
         success: true,

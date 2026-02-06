@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -63,6 +63,13 @@ export default function StockOutDialog({
   const quantity = watch('quantity');
   const currentStock = Number(product.currentStock);
   const newStock = currentStock - (quantity || 0);
+  const isOver = Boolean(quantity && quantity > currentStock);
+
+  useEffect(() => {
+    if (open) {
+      reset({ quantity: 1, notes: '' });
+    }
+  }, [open, reset]);
 
   const onSubmit = async (data: StockForm) => {
     if (data.quantity > currentStock) {
@@ -115,13 +122,15 @@ export default function StockOutDialog({
             <Input
               id="quantity"
               type="number"
+              min={1}
+              max={currentStock}
               placeholder="10"
               {...register('quantity', { valueAsNumber: true })}
             />
             {errors.quantity && (
               <p className="text-sm text-destructive">{errors.quantity.message}</p>
             )}
-            {quantity && quantity > currentStock && (
+            {isOver && (
               <Alert variant="destructive">
                 <AlertCircle className="h-4 w-4" />
                 <AlertDescription>
@@ -129,7 +138,7 @@ export default function StockOutDialog({
                 </AlertDescription>
               </Alert>
             )}
-            {quantity && quantity <= currentStock && (
+            {quantity && !isOver && (
               <p className="text-xs text-muted-foreground">
                 New stock will be: {newStock} {product.unit}
               </p>
@@ -151,7 +160,7 @@ export default function StockOutDialog({
             </Button>
             <Button 
               type="submit" 
-              disabled={loading || (quantity && quantity > currentStock)}
+              disabled={loading || isOver}
               variant="destructive"
             >
               {loading ? 'Removing...' : 'Remove Stock'}

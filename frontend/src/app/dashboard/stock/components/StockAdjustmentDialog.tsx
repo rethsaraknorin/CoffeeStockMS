@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -61,6 +61,13 @@ export default function StockAdjustmentDialog({
   const quantity = watch('quantity');
   const currentStock = Number(product.currentStock);
   const newStock = currentStock + (quantity || 0);
+  const invalidAdjustment = quantity !== undefined && quantity !== 0 && newStock < 0;
+
+  useEffect(() => {
+    if (open) {
+      reset({ quantity: 0, notes: '' });
+    }
+  }, [open, reset]);
 
   const onSubmit = async (data: StockForm) => {
     if (newStock < 0) {
@@ -126,7 +133,7 @@ export default function StockAdjustmentDialog({
             {quantity !== undefined && quantity !== 0 && (
               <p className="text-xs font-medium">
                 New stock will be: {newStock} {product.unit}
-                {newStock < 0 && <span className="text-destructive"> (Invalid!)</span>}
+                {invalidAdjustment && <span className="text-destructive"> (Invalid)</span>}
               </p>
             )}
           </div>
@@ -149,7 +156,7 @@ export default function StockAdjustmentDialog({
             </Button>
             <Button 
               type="submit" 
-              disabled={loading || newStock < 0}
+              disabled={loading || invalidAdjustment}
             >
               {loading ? 'Adjusting...' : 'Adjust Stock'}
             </Button>

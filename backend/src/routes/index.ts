@@ -7,6 +7,7 @@ import stockRoutes from './stockRoutes';
 import reportRoutes from './reportRoutes';
 import exportRoutes from './exportRoutes';
 import notificationRoutes from './notificationRoutes';
+import userRoutes from './userRoutes';
 
 const router = Router();
 
@@ -27,5 +28,6 @@ router.use('/stock', stockRoutes);
 router.use('/reports', reportRoutes);
 router.use('/export', exportRoutes);
 router.use('/notifications', notificationRoutes);
+router.use('/users', userRoutes);
 
 export default router;

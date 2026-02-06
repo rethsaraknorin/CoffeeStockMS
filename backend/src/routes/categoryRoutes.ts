@@ -4,13 +4,15 @@ import { authenticate, isAdmin } from '../middleware/auth';
 
 const router = Router();
 
-// Public routes
+// All category routes require authentication
+router.use(authenticate);
+
 router.get('/', categoryController.getAllCategories);
 router.get('/:id', categoryController.getCategoryById);
 
 // Protected routes
-router.post('/', authenticate, categoryController.createCategory);
-router.put('/:id', authenticate, categoryController.updateCategory);
-router.delete('/:id', authenticate, isAdmin, categoryController.deleteCategory);
+router.post('/', categoryController.createCategory);
+router.put('/:id', categoryController.updateCategory);
+router.delete('/:id', isAdmin, categoryController.deleteCategory);
 
 export default router;

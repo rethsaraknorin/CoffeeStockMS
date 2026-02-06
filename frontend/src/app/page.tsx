@@ -27,22 +27,22 @@ export default function HomePage() {
   }, [mounted, hydrated, isAuthenticated, router]);
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 via-white to-slate-50 p-4">
-      <Card className="w-full max-w-md shadow-lg border-0">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 via-slate-50 to-slate-100 p-4 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950">
+      <Card className="w-full max-w-md border-border/60 bg-background/70 shadow-lg backdrop-blur">
         <CardContent className="pt-6 pb-8">
           <div className="flex flex-col items-center space-y-6">
             {/* Animated Coffee Icon */}
             <div className="relative">
-              <div className="absolute inset-0 bg-primary/20 rounded-full blur-xl animate-pulse" />
-              <div className="relative bg-gradient-to-br from-primary to-primary/80 p-4 rounded-2xl shadow-lg">
-                <Coffee className="h-12 w-12 text-primary-foreground animate-bounce" />
+              <div className="absolute inset-0 bg-slate-500/10 rounded-full blur-xl animate-pulse" />
+              <div className="relative bg-slate-900/90 dark:bg-white/90 p-4 rounded-2xl shadow-lg">
+                <Coffee className="h-12 w-12 text-white dark:text-slate-900 animate-bounce" />
               </div>
             </div>
 
             {/* Loading Text */}
             <div className="text-center space-y-2">
-              <h2 className="text-2xl font-bold text-slate-900">Coffee Stock MS</h2>
-              <div className="flex items-center justify-center gap-2 text-slate-600">
+              <h2 className="text-2xl font-bold text-foreground">Coffee Stock MS</h2>
+              <div className="flex items-center justify-center gap-2 text-muted-foreground">
                 <Loader2 className="h-4 w-4 animate-spin" />
                 <p className="text-sm">Loading your workspace...</p>
               </div>

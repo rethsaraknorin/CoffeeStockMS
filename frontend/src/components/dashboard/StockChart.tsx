@@ -1,9 +1,9 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend, LineChart, Line } from 'recharts';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend, LineChart, Line, ReferenceLine } from 'recharts';
 
 interface StockChartProps {
   data: Array<{
@@ -29,6 +29,19 @@ export default function StockChart({ data }: StockChartProps) {
   }, []);
 
   const axisTickColor = isDark ? '#ffffff' : '#0f172a';
+  const avgReorder = useMemo(() => {
+    if (data.length === 0) return 0;
+    const total = data.reduce((sum, item) => sum + item.reorderLevel, 0);
+    return Math.round(total / data.length);
+  }, [data]);
+
+  const lowStockCount = useMemo(() => {
+    return data.filter((item) => item.stock <= item.reorderLevel).length;
+  }, [data]);
+
+  const maxStock = useMemo(() => {
+    return data.reduce((max, item) => Math.max(max, item.stock), 0);
+  }, [data]);
 
   return (
     <Card className="relative overflow-hidden shadow-sm hover:shadow-md transition-shadow border-l-4 border-l-blue-500 bg-gradient-to-br from-card via-card to-slate-50/40 dark:to-slate-950/30">
@@ -41,6 +54,17 @@ export default function StockChart({ data }: StockChartProps) {
         <CardDescription className="text-xs sm:text-sm">
           Current stock levels vs reorder points
         </CardDescription>
+        <div className="mt-3 flex flex-wrap gap-2 text-xs text-muted-foreground">
+          <span className="rounded-full border border-border bg-background/70 px-2.5 py-1">
+            Low Stock: <span className="text-foreground">{lowStockCount}</span>
+          </span>
+          <span className="rounded-full border border-border bg-background/70 px-2.5 py-1">
+            Avg Reorder: <span className="text-foreground">{avgReorder}</span>
+          </span>
+          <span className="rounded-full border border-border bg-background/70 px-2.5 py-1">
+            Max Stock: <span className="text-foreground">{maxStock}</span>
+          </span>
+        </div>
       </CardHeader>
       <CardContent className="relative px-2 sm:px-6">
         <Tabs defaultValue="bar" className="space-y-4">
@@ -75,6 +99,19 @@ export default function StockChart({ data }: StockChartProps) {
                   tick={{ fill: axisTickColor, fontSize: 11 }}
                   stroke="hsl(var(--border))"
                 />
+                {avgReorder > 0 && (
+                  <ReferenceLine
+                    y={avgReorder}
+                    stroke="var(--chart-4)"
+                    strokeDasharray="6 6"
+                    label={{
+                      value: `Avg reorder ${avgReorder}`,
+                      position: 'right',
+                      fill: 'hsl(var(--muted-foreground))',
+                      fontSize: 10
+                    }}
+                  />
+                )}
                 <Tooltip 
                   contentStyle={{ 
                     backgroundColor: 'hsl(var(--card))',
@@ -133,6 +170,19 @@ export default function StockChart({ data }: StockChartProps) {
                   tick={{ fill: axisTickColor, fontSize: 11 }}
                   stroke="hsl(var(--border))"
                 />
+                {avgReorder > 0 && (
+                  <ReferenceLine
+                    y={avgReorder}
+                    stroke="var(--chart-4)"
+                    strokeDasharray="6 6"
+                    label={{
+                      value: `Avg reorder ${avgReorder}`,
+                      position: 'right',
+                      fill: 'hsl(var(--muted-foreground))',
+                      fontSize: 10
+                    }}
+                  />
+                )}
                 <Tooltip 
                   contentStyle={{ 
                     backgroundColor: 'hsl(var(--card))',

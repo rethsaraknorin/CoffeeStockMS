@@ -179,6 +179,7 @@ export default function AddProductDialog({
 
   const selectedCategoryId = watch('categoryId');
   const selectedSupplierId = watch('supplierId');
+  const selectedUnit = watch('unit');
 
   useEffect(() => {
     if (!open) return;
@@ -274,8 +275,8 @@ export default function AddProductDialog({
               <div className="space-y-2">
                 <Label htmlFor="categoryId">Category *</Label>
                 <div className="flex gap-2">
-                  <Select 
-                    onValueChange={(value) => setValue('categoryId', value)}
+                <Select 
+                    onValueChange={(value) => setValue('categoryId', value, { shouldValidate: true })}
                     value={selectedCategoryId}
                   >
                     <SelectTrigger className="flex-1">
@@ -308,7 +309,9 @@ export default function AddProductDialog({
               <div className="space-y-2">
                 <Label htmlFor="supplierId">Supplier</Label>
                 <Select
-                  onValueChange={(value) => setValue('supplierId', value === 'none' ? undefined : value)}
+                  onValueChange={(value) =>
+                    setValue('supplierId', value === 'none' ? undefined : value, { shouldValidate: true })
+                  }
                   value={selectedSupplierId}
                 >
                   <SelectTrigger>
@@ -332,6 +335,8 @@ export default function AddProductDialog({
                   id="unitPrice"
                   type="number"
                   step="0.01"
+                  min={0}
+                  inputMode="decimal"
                   placeholder="3.50"
                   {...register('unitPrice', { valueAsNumber: true })}
                 />
@@ -348,6 +353,7 @@ export default function AddProductDialog({
                 <Input
                   id="currentStock"
                   type="number"
+                  min={0}
                   placeholder="100"
                   {...register('currentStock', { valueAsNumber: true })}
                 />
@@ -362,9 +368,13 @@ export default function AddProductDialog({
                 <Input
                   id="reorderLevel"
                   type="number"
+                  min={0}
                   placeholder="20"
                   {...register('reorderLevel', { valueAsNumber: true })}
                 />
+                <p className="text-xs text-muted-foreground">
+                  Low stock alerts trigger below this level
+                </p>
                 {errors.reorderLevel && (
                   <p className="text-sm text-destructive">{errors.reorderLevel.message}</p>
                 )}
@@ -373,7 +383,10 @@ export default function AddProductDialog({
               {/* Unit */}
               <div className="space-y-2">
                 <Label htmlFor="unit">Unit *</Label>
-                <Select onValueChange={(value) => setValue('unit', value)} defaultValue="pcs">
+                <Select
+                  onValueChange={(value) => setValue('unit', value, { shouldValidate: true })}
+                  value={selectedUnit}
+                >
                   <SelectTrigger>
                     <SelectValue />
                   </SelectTrigger>
