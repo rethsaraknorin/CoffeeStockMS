@@ -8,6 +8,9 @@ const router = Router();
 // Public routes
 router.post('/register', validateRegister, authController.register);
 router.post('/login', validateLogin, authController.login);
+router.get('/approve', authController.approveByToken);
+router.get('/google', authController.googleAuth);
+router.get('/google/callback', authController.googleCallback);
 
 // Protected routes
 router.get('/profile', authenticate, authController.getProfile);

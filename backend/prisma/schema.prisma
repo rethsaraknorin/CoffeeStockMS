@@ -14,17 +14,29 @@ model User {
   email     String   @unique
   password  String
   role      Role     @default(STAFF)
+  status    UserStatus @default(PENDING)
+  approvalToken String? @unique
+  approvalTokenExpires DateTime?
+  approvedAt DateTime?
+  approvedBy String?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   @@map("users")
   @@index([role])
   @@index([createdAt])
+  @@index([status])
 }
 
 enum Role {
   ADMIN
   STAFF
+}
+
+enum UserStatus {
+  PENDING
+  ACTIVE
+  REJECTED
 }
 
 model Category {

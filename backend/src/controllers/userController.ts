@@ -5,6 +5,22 @@ import { Role } from '@prisma/client';
 const isValidRole = (role?: string): role is Role => role === 'ADMIN' || role === 'STAFF';
 
 export const userController = {
+  listPendingUsers: async (req: Request, res: Response) => {
+    try {
+      const users = await userService.listUsersByStatus('PENDING', 'STAFF');
+
+      res.status(200).json({
+        success: true,
+        message: 'Pending users retrieved successfully',
+        data: users
+      });
+    } catch (error: any) {
+      res.status(500).json({
+        success: false,
+        message: error.message || 'Failed to retrieve pending users'
+      });
+    }
+  },
   listUsers: async (req: Request, res: Response) => {
     try {
       const role = req.query.role as string | undefined;
@@ -117,6 +133,57 @@ export const userController = {
       res.status(400).json({
         success: false,
         message: error.message || 'Failed to delete user'
+      });
+    }
+  }
+  ,
+  approveUser: async (req: Request, res: Response) => {
+    try {
+      const rawId = req.params.id;
+      const id = Array.isArray(rawId) ? rawId[0] : rawId;
+      if (!id) {
+        return res.status(400).json({
+          success: false,
+          message: 'User ID is required'
+        });
+      }
+      const approvedBy = req.user?.id;
+      const updated = await userService.updateUserStatus(id, 'ACTIVE', approvedBy);
+
+      res.status(200).json({
+        success: true,
+        message: 'User approved successfully',
+        data: updated
+      });
+    } catch (error: any) {
+      res.status(400).json({
+        success: false,
+        message: error.message || 'Failed to approve user'
+      });
+    }
+  },
+
+  rejectUser: async (req: Request, res: Response) => {
+    try {
+      const rawId = req.params.id;
+      const id = Array.isArray(rawId) ? rawId[0] : rawId;
+      if (!id) {
+        return res.status(400).json({
+          success: false,
+          message: 'User ID is required'
+        });
+      }
+      const updated = await userService.updateUserStatus(id, 'REJECTED');
+
+      res.status(200).json({
+        success: true,
+        message: 'User rejected successfully',
+        data: updated
+      });
+    } catch (error: any) {
+      res.status(400).json({
+        success: false,
+        message: error.message || 'Failed to reject user'
       });
     }
   }

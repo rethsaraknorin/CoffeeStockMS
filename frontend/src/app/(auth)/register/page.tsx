@@ -169,6 +169,17 @@ export default function RegisterPage() {
                 <Button type="submit" className="w-full" disabled={isLoading}>
                   {isLoading ? 'Creating account...' : 'Create Account'}
                 </Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="w-full"
+                  onClick={() => {
+                    const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
+                    window.location.href = `${apiUrl}/auth/google`;
+                  }}
+                >
+                  Continue with Google
+                </Button>
 
                 <p className="text-sm text-center text-slate-600 dark:text-slate-400">
                   Already have an account?{' '}

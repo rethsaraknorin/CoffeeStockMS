@@ -3,6 +3,7 @@ export interface AuthUser {
   username: string;
   email: string;
   role: string;
+  status?: string;
 }
 
 declare global {
