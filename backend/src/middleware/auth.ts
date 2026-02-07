@@ -49,6 +49,9 @@ export const isAdmin = (req: Request, res: Response, next: NextFunction) => {
 export const requireActiveUser = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const userId = req.user?.id;
+    if (req.user?.role === 'ADMIN') {
+      return next();
+    }
     if (!userId) {
       return res.status(401).json({
         success: false,

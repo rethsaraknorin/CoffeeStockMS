@@ -83,7 +83,7 @@ export default function DashboardLayout({
             <span className="text-sm font-medium">Dashboard</span>
           </div>
         </div>
-        {user?.status === 'PENDING' && (
+        {user?.status === 'PENDING' && user?.role !== 'ADMIN' && (
           <div className="border-b border-border bg-amber-500/10 px-4 py-3 text-sm text-amber-700 dark:text-amber-300">
             Your account is pending admin approval. You can view data, but write actions are disabled.
           </div>
