@@ -33,6 +33,13 @@ export interface StaffUser {
   createdAt: string;
 }
 
+interface PendingUser {
+  id: string;
+  username: string;
+  email: string;
+  createdAt: string;
+}
+
 interface StaffActivity {
   id: string;
   type: 'IN' | 'OUT' | 'ADJUSTMENT';
@@ -51,6 +58,8 @@ export default function StaffPage() {
   const [loading, setLoading] = useState(true);
   const [activity, setActivity] = useState<StaffActivity[]>([]);
   const [activityLoading, setActivityLoading] = useState(true);
+  const [pendingUsers, setPendingUsers] = useState<PendingUser[]>([]);
+  const [pendingLoading, setPendingLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [roleFilter, setRoleFilter] = useState<'ALL' | 'ADMIN' | 'STAFF'>('ALL');
   const [sortKey, setSortKey] = useState<'username' | 'role' | 'createdAt'>('createdAt');
@@ -82,9 +91,22 @@ export default function StaffPage() {
     }
   };
 
+  const fetchPending = async () => {
+    try {
+      setPendingLoading(true);
+      const response = await api.get('/users/pending');
+      setPendingUsers(response.data.data || []);
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || 'Failed to load pending approvals');
+    } finally {
+      setPendingLoading(false);
+    }
+  };
+
   useEffect(() => {
     fetchUsers();
     fetchActivity();
+    fetchPending();
   }, []);
 
   const stats = useMemo(() => {
@@ -175,6 +197,28 @@ export default function StaffPage() {
       fetchUsers();
     } catch (error: any) {
       toast.error(error.response?.data?.message || 'Failed to delete user');
+    }
+  };
+
+  const handleApprove = async (userId: string) => {
+    try {
+      await api.post(`/users/${userId}/approve`);
+      toast.success('User approved');
+      fetchUsers();
+      fetchPending();
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || 'Failed to approve user');
+    }
+  };
+
+  const handleReject = async (userId: string) => {
+    try {
+      await api.post(`/users/${userId}/reject`);
+      toast.success('User rejected');
+      fetchUsers();
+      fetchPending();
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || 'Failed to reject user');
     }
   };
 
@@ -294,9 +338,17 @@ export default function StaffPage() {
         </div>
 
         <Tabs defaultValue="users" className="space-y-4">
-          <TabsList className="grid w-full grid-cols-2 bg-slate-100/70 dark:bg-slate-900/50 sm:inline-flex sm:w-auto">
+          <TabsList className="grid w-full grid-cols-3 bg-slate-100/70 dark:bg-slate-900/50 sm:inline-flex sm:w-auto">
             <TabsTrigger value="users" className="text-xs sm:text-sm">All Users</TabsTrigger>
             <TabsTrigger value="activity" className="text-xs sm:text-sm">Staff Activity</TabsTrigger>
+            <TabsTrigger value="approvals" className="text-xs sm:text-sm">
+              Approvals
+              {pendingUsers.length > 0 && (
+                <span className="ml-2 inline-flex h-5 min-w-[20px] items-center justify-center rounded-full bg-red-500 px-2 text-[10px] font-semibold text-white">
+                  {pendingUsers.length}
+                </span>
+              )}
+            </TabsTrigger>
           </TabsList>
 
           <TabsContent value="users" className="space-y-4">
@@ -523,6 +575,71 @@ export default function StaffPage() {
                       ))}
                     </div>
                   </ScrollArea>
+                )}
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="approvals" className="space-y-4">
+            <Card className="border-border/60 bg-background/70 backdrop-blur">
+              <CardHeader className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                <div>
+                  <CardTitle>Pending Approvals</CardTitle>
+                  <CardDescription>Approve or reject new staff access requests</CardDescription>
+                </div>
+                <Button onClick={fetchPending} variant="outline" size="sm">
+                  Refresh
+                </Button>
+              </CardHeader>
+              <CardContent>
+                {pendingLoading ? (
+                  <Skeleton className="h-32 w-full" />
+                ) : pendingUsers.length === 0 ? (
+                  <div className="flex flex-col items-center justify-center gap-2 rounded-md border border-dashed px-6 py-10 text-center">
+                    <div className="text-sm font-medium">No pending approvals</div>
+                    <div className="text-xs text-muted-foreground">
+                      New staff requests will show up here for review.
+                    </div>
+                  </div>
+                ) : (
+                  <div className="rounded-md border">
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead>User</TableHead>
+                          <TableHead>Requested</TableHead>
+                          <TableHead className="text-right">Actions</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {pendingUsers.map((u) => (
+                          <TableRow key={u.id}>
+                            <TableCell>
+                              <div>
+                                <div className="font-medium">{u.username}</div>
+                                <div className="text-sm text-muted-foreground">{u.email}</div>
+                              </div>
+                            </TableCell>
+                            <TableCell>
+                              <Badge variant="outline">
+                                {new Date(u.createdAt).toLocaleDateString()}
+                              </Badge>
+                            </TableCell>
+                            <TableCell className="text-right">
+                              <div className="flex flex-wrap justify-end gap-2">
+                                <Button size="sm" onClick={() => handleApprove(u.id)}>
+                                  Approve
+                                </Button>
+                                <Button size="sm" variant="outline" onClick={() => handleReject(u.id)}>
+                                  Reject
+                                </Button>
+                              </div>
+                            </TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  </div>
                 )}
               </CardContent>
             </Card>

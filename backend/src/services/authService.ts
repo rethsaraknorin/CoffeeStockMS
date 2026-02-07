@@ -132,6 +132,19 @@ export const authService = {
       throw new Error('Your account was rejected. Please contact an admin.');
     }
 
+    if (user.role === 'ADMIN' && user.status !== 'ACTIVE') {
+      const updated = await prisma.user.update({
+        where: { id: user.id },
+        data: {
+          status: 'ACTIVE',
+          approvedAt: new Date(),
+          approvalToken: null,
+          approvalTokenExpires: null
+        }
+      });
+      user.status = updated.status;
+    }
+
     // Check password
     const isPasswordValid = await comparePasword(password, user.password);
 
@@ -164,6 +177,19 @@ export const authService = {
     if (existing) {
       if (existing.status === 'REJECTED') {
         throw new Error('Your account was rejected. Please contact an admin.');
+      }
+
+      if (existing.role === 'ADMIN' && existing.status !== 'ACTIVE') {
+        const updated = await prisma.user.update({
+          where: { id: existing.id },
+          data: {
+            status: 'ACTIVE',
+            approvedAt: new Date(),
+            approvalToken: null,
+            approvalTokenExpires: null
+          }
+        });
+        existing.status = updated.status;
       }
 
       const token = generateToken({
