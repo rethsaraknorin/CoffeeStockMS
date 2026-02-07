@@ -14,6 +14,7 @@ import {
   X
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 import { useAuthStore } from '@/store/authStore';
 import { cn } from '@/lib/utils';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
@@ -26,6 +27,8 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import { useEffect, useState } from 'react';
+import api from '@/lib/api';
 
 const navItems = [
   { icon: LayoutDashboard, label: 'Dashboard', href: '/dashboard' },
@@ -46,12 +49,27 @@ export default function Sidebar({ mobileOpen, onClose }: SidebarProps) {
   const pathname = usePathname();
   const router = useRouter();
   const { user, logout } = useAuthStore();
+  const [pendingCount, setPendingCount] = useState(0);
 
   const handleLogout = () => {
     logout();
     onClose();
     router.push('/login');
   };
+
+  useEffect(() => {
+    const fetchPending = async () => {
+      if (user?.role !== 'ADMIN') return;
+      try {
+        const response = await api.get('/users/pending');
+        const pending = response.data.data || [];
+        setPendingCount(pending.length);
+      } catch {
+        setPendingCount(0);
+      }
+    };
+    fetchPending();
+  }, [user?.role]);
 
   return (
     <div
@@ -127,7 +145,12 @@ export default function Sidebar({ mobileOpen, onClose }: SidebarProps) {
                 )}
               >
                 <Icon className="h-4 w-4" />
-                {item.label}
+                <span className="flex-1 text-left">{item.label}</span>
+                {item.href === '/dashboard/staff' && pendingCount > 0 && (
+                  <Badge variant="destructive" className="h-5 px-2 text-[10px]">
+                    {pendingCount}
+                  </Badge>
+                )}
               </Button>
             </Link>
           );

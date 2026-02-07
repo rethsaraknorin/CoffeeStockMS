@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { categoryController } from '../controllers/categoryController';
-import { authenticate, isAdmin } from '../middleware/auth';
+import { authenticate, isAdmin, requireActiveUser } from '../middleware/auth';
 
 const router = Router();
 
@@ -11,8 +11,8 @@ router.get('/', categoryController.getAllCategories);
 router.get('/:id', categoryController.getCategoryById);
 
 // Protected routes
-router.post('/', categoryController.createCategory);
-router.put('/:id', categoryController.updateCategory);
-router.delete('/:id', isAdmin, categoryController.deleteCategory);
+router.post('/', requireActiveUser, categoryController.createCategory);
+router.put('/:id', requireActiveUser, categoryController.updateCategory);
+router.delete('/:id', requireActiveUser, isAdmin, categoryController.deleteCategory);
 
 export default router;

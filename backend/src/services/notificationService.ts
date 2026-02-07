@@ -15,6 +15,45 @@ const createTransporter = () => {
 };
 
 export const notificationService = {
+  sendApprovalRequestEmail: async (
+    recipientEmail: string,
+    payload: { username: string; email: string; approvalUrl: string }
+  ) => {
+    const transporter = createTransporter();
+
+    const htmlContent = `
+      <html>
+        <body style="font-family: Arial, sans-serif;">
+          <h2 style="color: #2c3e50;">New User Approval Needed</h2>
+          <p>A new user has signed up and needs admin approval.</p>
+          <ul>
+            <li><strong>Username:</strong> ${payload.username}</li>
+            <li><strong>Email:</strong> ${payload.email}</li>
+          </ul>
+          <p>
+            <a href="${payload.approvalUrl}" style="display:inline-block;padding:10px 14px;background:#2c3e50;color:#fff;text-decoration:none;border-radius:6px;">
+              Approve User
+            </a>
+          </p>
+          <p style="color:#666;margin-top:20px;">
+            If the button doesn't work, copy and paste this link:
+            <br />
+            ${payload.approvalUrl}
+          </p>
+        </body>
+      </html>
+    `;
+
+    const mailOptions = {
+      from: process.env.SMTP_USER,
+      to: recipientEmail,
+      subject: 'Admin Approval Required - New User Signup',
+      html: htmlContent
+    };
+
+    await transporter.sendMail(mailOptions);
+    return { message: 'Approval email sent' };
+  },
   // Send Low Stock Alert Email
   sendLowStockAlert: async (recipientEmail: string) => {
     const report = await reportService.getLowStockReport();

@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 import { verifyToken } from "../utils/jwt";
+import prisma from '../config/database';
 
 export const authenticate = async (
     req: Request,
@@ -13,7 +14,7 @@ export const authenticate = async (
         if (!authHeader || !authHeader.startsWith('Bearer')){
             return res.status(401).json({
                 success: false,
-                mesesage: 'No token provided, Access denied'
+                message: 'No token provided, Access denied'
             });
         }
 
@@ -43,4 +44,35 @@ export const isAdmin = (req: Request, res: Response, next: NextFunction) => {
     });
   }
   next();
+};
+
+export const requireActiveUser = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const userId = req.user?.id;
+    if (!userId) {
+      return res.status(401).json({
+        success: false,
+        message: 'User not authenticated'
+      });
+    }
+
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      select: { status: true }
+    });
+
+    if (!user || user.status !== 'ACTIVE') {
+      return res.status(403).json({
+        success: false,
+        message: 'Account pending approval. Please wait for admin approval.'
+      });
+    }
+
+    next();
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: 'Failed to verify account status'
+    });
+  }
 };

@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import { productController } from '../controllers/productController';
 import { validateCreateProduct, validateUpdateProduct } from '../validations/productValidation';
-import { authenticate, isAdmin } from '../middleware/auth';
+import { authenticate, isAdmin, requireActiveUser } from '../middleware/auth';
 
 const router = Router();
 
@@ -13,8 +13,8 @@ router.get('/low-stock', productController.getLowStockProducts);
 router.get('/:id', productController.getProductById);
 
 // Protected routes (require authentication)
-router.post('/', validateCreateProduct, productController.createProduct);
-router.put('/:id', validateUpdateProduct, productController.updateProduct);
-router.delete('/:id', isAdmin, productController.deleteProduct);
+router.post('/', requireActiveUser, validateCreateProduct, productController.createProduct);
+router.put('/:id', requireActiveUser, validateUpdateProduct, productController.updateProduct);
+router.delete('/:id', requireActiveUser, isAdmin, productController.deleteProduct);
 
 export default router;

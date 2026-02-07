@@ -7,6 +7,7 @@ import Sidebar from '@/components/dashboard/Sidebar';
 import { Button } from '@/components/ui/button';
 import { Menu } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import api from '@/lib/api';
 
 export default function DashboardLayout({
   children,
@@ -14,7 +15,7 @@ export default function DashboardLayout({
   children: React.ReactNode;
 }) {
   const router = useRouter();
-  const { isAuthenticated, hydrated } = useAuthStore();
+  const { isAuthenticated, hydrated, user, updateUser } = useAuthStore();
   const [mounted, setMounted] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
@@ -27,6 +28,19 @@ export default function DashboardLayout({
       router.push('/login');
     }
   }, [mounted, hydrated, isAuthenticated, router]);
+
+  useEffect(() => {
+    if (!mounted || !hydrated || !isAuthenticated) return;
+    const refreshProfile = async () => {
+      try {
+        const response = await api.get('/auth/profile');
+        updateUser(response.data.data);
+      } catch {
+        // If profile refresh fails, keep existing state
+      }
+    };
+    refreshProfile();
+  }, [mounted, hydrated, isAuthenticated, updateUser]);
 
   if (!mounted || !hydrated) {
     return (
@@ -69,6 +83,11 @@ export default function DashboardLayout({
             <span className="text-sm font-medium">Dashboard</span>
           </div>
         </div>
+        {user?.status === 'PENDING' && (
+          <div className="border-b border-border bg-amber-500/10 px-4 py-3 text-sm text-amber-700 dark:text-amber-300">
+            Your account is pending admin approval. You can view data, but write actions are disabled.
+          </div>
+        )}
         {children}
       </main>
     </div>

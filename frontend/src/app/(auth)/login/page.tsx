@@ -133,15 +133,26 @@ export default function LoginPage() {
                                 </div>
                             </CardContent>
 
-                            <CardFooter className="flex flex-col space-y-6 pt-2">
-                                <Button type="submit" className="w-full" disabled={isLoading}>
-                                    {isLoading ? 'Signing in...' : 'Sign In'}
-                                </Button>
+                        <CardFooter className="flex flex-col space-y-6 pt-2">
+                            <Button type="submit" className="w-full" disabled={isLoading}>
+                                {isLoading ? 'Signing in...' : 'Sign In'}
+                            </Button>
+                            <Button
+                                type="button"
+                                variant="outline"
+                                className="w-full"
+                                onClick={() => {
+                                    const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
+                                    window.location.href = `${apiUrl}/auth/google`;
+                                }}
+                            >
+                                Continue with Google
+                            </Button>
 
-                                <p className="text-sm text-center text-slate-600 dark:text-slate-400">
-                                    Don&apos;t have an account?{' '}
-                                    <Link href="/register" className="text-blue-600 hover:underline">
-                                        Sign up
+                            <p className="text-sm text-center text-slate-600 dark:text-slate-400">
+                                Don&apos;t have an account?{' '}
+                                <Link href="/register" className="text-blue-600 hover:underline">
+                                    Sign up
                                     </Link>
                                 </p>
                             </CardFooter>
